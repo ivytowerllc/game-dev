@@ -2,7 +2,7 @@
 //Copyright 2016, Amari Vaughn, All rights reserved.
 
 
-var game=new Phaser.Game(800,600, Phaser.AUTO);
+var game=new Phaser.Game(window.innerWidth,window.innerHeight, Phaser.AUTO);
 var sprite;
 var sprite2;
 var upKey;
