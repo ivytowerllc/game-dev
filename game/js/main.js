@@ -106,8 +106,7 @@ create: function(){
 },
 // updates collisions etc for the lifetime fo the game
 update: function(){
-	if (game.input.activePointer.isDown)
-    {
+	
        //game.physics.arcade.moveToPointer(bullet, 300);
     
 	 sprite.rotation = game.physics.arcade.angleToPointer(sprite);
@@ -116,7 +115,7 @@ update: function(){
 	 //game.physics.moveToObject(sprite2, sprite, 400);
 
       
- game.physics.arcade.moveToPointer(sprite, 500);}
+ game.physics.arcade.moveToPointer(sprite, 500);
   if (fireButton.isDown)
     {
         weapon.fire();
