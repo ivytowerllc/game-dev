@@ -57,7 +57,6 @@ CrystalHunter.GameState = {
         this.ship.anchor.setTo(0.5);
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
-        this.ship.body.maxVelocity.setTo(this.MAX_SPEED, this.MAX_SPEED); // x, y
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -79,9 +78,13 @@ CrystalHunter.GameState = {
         
         // --- PLAYER MOVEMENT
         
-        this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
-        this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
-        this.game.physics.arcade.moveToPointer(this.ship, this.MAX_SPEED);
+        if (this.game.physics.arcade.distanceToPointer(this.ship) > 5) {
+            this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
+            this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
+            this.game.physics.arcade.moveToPointer(this.ship, this.MAX_SPEED);
+        } else {
+            this.ship.body.velocity.setTo(0);
+        }
         
         // --- FIRE WEAPON
         
