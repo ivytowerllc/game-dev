@@ -78,9 +78,10 @@ CrystalHunter.GameState = {
         
         // --- PLAYER MOVEMENT
         
-        if (this.game.physics.arcade.distanceToPointer(this.ship) > 5) {
-            this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
-            this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
+        this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
+        this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
+        
+        if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
             this.game.physics.arcade.moveToPointer(this.ship, this.MAX_SPEED);
         } else {
             this.ship.body.velocity.setTo(0);
