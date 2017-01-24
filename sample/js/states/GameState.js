@@ -27,16 +27,16 @@ CrystalHunter.GameState = {
     preload: function() {
         
         // Load assets
-        this.game.load.image('bg', 'assets/images/background.png');
-        this.game.load.image('ship', 'assets/images/ship.png');
-        this.game.load.image('bullet', 'assets/images/bullet.png');
-        this.game.load.image('basic', 'assets/images/basicen.png');
-        this.game.load.image('basicb', 'assets/images/basicbull.png');
-        this.game.load.image('bruiser', 'assets/images/bruisen.png');
-        this.game.load.image('bruiserb', 'assets/images/bruisbull.png');
-        this.game.load.image('captain', 'assets/images/capten.png');
-        this.game.load.image('captainb', 'assets/images/captbull.png');
-        this.game.load.image('moon', 'assets/images/moon.png');  
+        this.game.load.image('bg', 'assets/background.png');
+        this.game.load.image('ship', 'assets/ship.png');
+        this.game.load.image('bullet', 'assets/bullet.png');
+        this.game.load.image('basic', 'assets/basicen.png');
+        this.game.load.image('basicb', 'assets/basicbull.png');
+        this.game.load.image('bruiser', 'assets/bruisen.png');
+        this.game.load.image('bruiserb', 'assets/bruisbull.png');
+        this.game.load.image('captain', 'assets/capten.png');
+        this.game.load.image('captainb', 'assets/captbull.png');
+        this.game.load.image('moon', 'assets/moon.png');  
         
     },
     
