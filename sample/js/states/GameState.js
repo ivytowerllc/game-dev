@@ -5,35 +5,39 @@ CrystalHunter.GameState = {
     init: function() {
         
         // Establish player constants
-        this.ACCELERATION = 150;
-        this.MAX_SPEED = 200;
-        this.DRAG = 50;
-        this.ROTATION_SPEED = 180;
+        this.MAX_SPEED = 300;
         
         // Establish bullet constants
-        this.BULLET_SPEED = 300;
+        this.BULLET_SPEED = 600;
         this.FIRE_RATE = 200;
         
         // Establish enemy constants
-        this.BASIC_SPEED = 100;
-        this.NEXT_ENEMY = 0;
-        this.ENEMY_DELAY = 1000;
+        this.BASIC_SPEED = 150;
+        this.BASIC_HEALTH = 10;
+        this.BRUISER_SPEED = 100;
+        this.BRUISER_HEALTH = 30;
+        this.CAPTAIN_SPEED = 300;
+        this.CAPTAIN_HEALTH = 100;
         
         // Initiate physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
+        
     },
 
     preload: function() {
         
         // Load assets
-        this.game.load.image('bg', 'assets/background.png');
-        this.game.load.image('ship', 'assets/ship.png');
-        this.game.load.image('bullet', 'assets/bullet.png');
-        this.game.load.image('basic', 'assets/basicen.png');
-        this.game.load.image('basicb', 'assets/basicbull.png');
-        this.game.load.image('bruiser', 'assets/bruisen.png');
-        this.game.load.image('bruiserb', 'assets/bruisbull.png');
-        this.game.load.image('moon', 'assets/moon.png');  
+        this.game.load.image('bg', 'assets/images/background.png');
+        this.game.load.image('ship', 'assets/images/ship.png');
+        this.game.load.image('bullet', 'assets/images/bullet.png');
+        this.game.load.image('basic', 'assets/images/basicen.png');
+        this.game.load.image('basicb', 'assets/images/basicbull.png');
+        this.game.load.image('bruiser', 'assets/images/bruisen.png');
+        this.game.load.image('bruiserb', 'assets/images/bruisbull.png');
+        this.game.load.image('captain', 'assets/images/capten.png');
+        this.game.load.image('captainb', 'assets/images/captbull.png');
+        this.game.load.image('moon', 'assets/images/moon.png');  
+        
     },
     
     create: function() {
@@ -43,7 +47,7 @@ CrystalHunter.GameState = {
         // Set world bounds
         this.game.world.setBounds(0, 0, 1500, 1500);
         
-        // Standard black fill BG for now
+        // Simple starry background for now
         this.game.add.sprite(0, 0, 'bg');
         
         // Add moon for reference point
@@ -58,9 +62,6 @@ CrystalHunter.GameState = {
         this.ship.anchor.setTo(0.5);
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
-        this.ship.body.maxVelocity.setTo(this.MAX_SPEED, this.MAX_SPEED); // x, y
-        // Drags the ship when not accelerating
-        this.ship.body.drag.setTo(this.DRAG, this.DRAG); // x, y
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -76,67 +77,52 @@ CrystalHunter.GameState = {
         // Bullets come from the ship's tip
         this.weapon.trackSprite(this.ship, 19, 0, true);
         
-        // --- ENEMIES
+        // --- ENEMY SPAWNS
         
-        // Basic enemy pool
-        this.basicEnemy = this.game.add.group();
-        this.basicEnemy.enableBody = true;
-        this.game.physics.enable(this.basicEnemy, Phaser.Physics.ARCADE);
-        this.basicEnemy.createMultiple(5, 'basic');
-        this.basicEnemy.setAll('anchor.x', 0.5);
-        this.basicEnemy.setAll('anchor.y', 0.5);
+        // Add basic enemies
+        var basicPool = this.game.add.group();
+        for (var i = 0; i < 5; i++) {
+            var basic = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH);
+            basicPool.add(basic);
+        }
         
-        // Bruiser enemy pool
-        this.bruiserEnemy = this.game.add.group();
-        this.bruiserEnemy.enableBody = true;
-        this.game.physics.enable(this.bruiserEnemy, Phaser.Physics.ARCADE);
-        this.bruiserEnemy.createMultiple(2, 'bruiser');
-        this.bruiserEnemy.setAll('anchor.x', 0.5);
-        this.bruiserEnemy.setAll('anchor.y', 0.5);
+        // Add bruiser class enemies
+        var bruisePool = this.game.add.group();
+        for (var i = 0; i < 2; i++) {
+            var bruiser = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH);
+            bruisePool.add(bruiser);
+        }
         
-        // -- PLAYER CONTROLS
+        // Add captain class
+        var captain = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH);
+        this.game.add.existing(captain);
         
-        // Establishes controls + space to fire
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.fireButton = this.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR);
+        this.enemyFire = this.add.group();
+        this.enemyFire.enableBody = true;
+        
     },
     
     update: function() {
         
         // --- PLAYER MOVEMENT
-
-        // Calculate acceleration
-        if (this.cursors.up.isDown) {
-            this.ship.body.acceleration.x = Math.cos(this.ship.rotation) * this.ACCELERATION;
-            this.ship.body.acceleration.y = Math.sin(this.ship.rotation) * this.ACCELERATION;
-        } else {
-            this.ship.body.acceleration.setTo(0);
-        }
         
-        // Rotate ship
-        if (this.cursors.left.isDown) {
-            this.ship.body.angularVelocity = -this.ROTATION_SPEED;
-        } else if (this.cursors.right.isDown) {
-            this.ship.body.angularVelocity = this.ROTATION_SPEED;
+        this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
+        this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
+        
+        if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
+            this.game.physics.arcade.moveToPointer(this.ship, this.MAX_SPEED);
         } else {
-            this.ship.body.angularVelocity = 0;
+            this.ship.body.velocity.setTo(0);
         }
         
         // --- FIRE WEAPON
         
-        // Fires with space bar
-        if (this.fireButton.isDown) {
+        // Fires with mouse click
+        if (this.game.input.activePointer.isDown) {
             this.weapon.fire();
-        }
+            
+        }   
         
-        // --- BASIC ENEMY SPAWNING
-        
-        // if (this.NEXT_ENEMY < this.time.now && this.basicEnemy.countDead() > 0) {
-            // this.NEXT_ENEMY = this.time.now + this.ENEMY_DELAY;
-            // this.enemy = this.basicEnemy.getFirstExists(false);
-            // Spawn at random location from top
-            // this.enemy.reset(this.rnd.integerInRange(20, 1480), 0);
-            // this.enemy.body.collideWorldBounds = true;
-        // }      
-    }       
+    }
+    
 };
