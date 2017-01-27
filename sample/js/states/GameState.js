@@ -121,8 +121,28 @@ CrystalHunter.GameState = {
         if (this.game.input.activePointer.isDown) {
             this.weapon.fire();
             
-        }   
+        }
+        // gets every sprite in the group
+         bruisePool.forEachAlive(aggro, this, this.ship, 200);
+        basicPool.forEachAlive(aggro, this, this.ship, 200);
         
     }
     
 };
+//checks for aggro range and sets aggro property to true(you made one i assumed thats what it was for)
+var aggro=function(sprite, ship, distance){
+
+        if(Math.abs(sprite.x-ship.x)<=distance && Math.abs(sprite.y-ship.y)<=distance){
+
+       this.game.physics.arcade.moveToObject(sprite,ship,100);
+
+        var angle = Math.atan2(ship.y - sprite.y, ship.x - sprite.x);// angle of enemy to player ship
+        sprite.rotation = angle;
+       // sprite.weapon.fire();
+       sprite.aggro=true;
+   }else{
+
+
+   }
+       //ga
+    }
