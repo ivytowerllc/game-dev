@@ -1,4 +1,9 @@
 var CrystalHunter = CrystalHunter || {};
+ var basicPool;
+ var bruisePool;
+ var captain;
+ var bruiser;
+ var basic;
 
 CrystalHunter.GameState = {
 
@@ -80,21 +85,23 @@ CrystalHunter.GameState = {
         // --- ENEMY SPAWNS
         
         // Add basic enemies
-        var basicPool = this.game.add.group();
+        basicPool = this.game.add.group();
         for (var i = 0; i < 5; i++) {
-            var basic = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH);
+             basic = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH);
             basicPool.add(basic);
+            
         }
         
         // Add bruiser class enemies
-        var bruisePool = this.game.add.group();
+        bruisePool = this.game.add.group();
         for (var i = 0; i < 2; i++) {
-            var bruiser = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH);
+             bruiser = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH);
             bruisePool.add(bruiser);
+            
         }
         
         // Add captain class
-        var captain = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH);
+        captain = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH);
         this.game.add.existing(captain);
         
         this.enemyFire = this.add.group();
@@ -117,29 +124,29 @@ CrystalHunter.GameState = {
         
         // --- FIRE WEAPON
         
-        // Fires with mouse click
+        // Fires .with mouse click
         if (this.game.input.activePointer.isDown) {
             this.weapon.fire();
             
-        }
-        // gets every sprite in the group
-         bruisePool.forEachAlive(aggro, this, this.ship, 200);
+        }   
+
+        bruisePool.forEachAlive(aggro, this, this.ship, 200);
         basicPool.forEachAlive(aggro, this, this.ship, 200);
+       // captain.forEachAlive(aggro,this,this.ship,200);
         
     }
+
     
 };
-//checks for aggro range and sets aggro property to true(you made one i assumed thats what it was for)
 var aggro=function(sprite, ship, distance){
 
         if(Math.abs(sprite.x-ship.x)<=distance && Math.abs(sprite.y-ship.y)<=distance){
 
        this.game.physics.arcade.moveToObject(sprite,ship,100);
 
-        var angle = Math.atan2(ship.y - sprite.y, ship.x - sprite.x);// angle of enemy to player ship
+        var angle = Math.atan2(ship.y - sprite.y, ship.x - sprite.x);
         sprite.rotation = angle;
-       // sprite.weapon.fire();
-       sprite.aggro=true;
+        //sprite.weapon.fire();
    }else{
 
 
