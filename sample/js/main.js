@@ -2,6 +2,7 @@ var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO);
 
 var basicPool;
 var bruisePool;
+var capnPool;
 var captain;
 var bruiser;
 var basic;
@@ -104,9 +105,13 @@ var GameState = {
             
         }
         
-        // Add captain class
-        captain = new CrystalHunter.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH);
-        this.game.add.existing(captain);
+        // Add captain class enemies
+        capnPool = this.game.add.group();
+        for(var m =0; m < 1; m++) {
+            captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH);
+            capnPool.add(captain);
+        }
+        //this.game.add.existing(captain);
         
         this.enemyFire = this.add.group();
         this.enemyFire.enableBody = true;
@@ -135,7 +140,7 @@ var GameState = {
 
         bruisePool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
         basicPool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
-        // captain.forEachAlive(aggro, this, this.ship, 200);
+        capnPool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
         
     }
 
