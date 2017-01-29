@@ -28,6 +28,8 @@ var GameState = {
         this.BASIC_BULLRT = 300;
         this.BRUISER_SPEED = 100;
         this.BRUISER_HEALTH = 30;
+        this.CAPTAIN_SPEED = 300;
+        this.CAPN_POD_SPEED = 350;
         
         // Initiate physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
