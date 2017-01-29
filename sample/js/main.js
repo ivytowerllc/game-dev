@@ -6,6 +6,8 @@ var capnPool;
 var captain;
 var bruiser;
 var basic;
+var astPool;
+var asteroids;
 
 // --- GAMESTATE
 
@@ -29,7 +31,7 @@ var GameState = {
         this.BRUISER_SPEED = 100;
         this.BRUISER_HEALTH = 30;
         this.CAPTAIN_SPEED = 300;
-        this.CAPN_POD_SPEED = 350;
+        this.ESCAPE_POD_SPEED = 350;
         
         // Initiate physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -48,8 +50,22 @@ var GameState = {
         this.game.load.image('bruiserb', 'assets/bruisbull.png');
         this.game.load.image('captain', 'assets/capten.png');
         this.game.load.image('captainb', 'assets/captbull.png');
-        this.game.load.image('moon', 'assets/moon.png');  
-        
+        this.game.load.image('moon', 'assets/moon.png');
+        this.game.load.image('bigRedAst', 'assets/bigredast.png');
+        this.game.load.image('medRedAst', 'assets/medredast.png');
+        this.game.load.image('smlRedAst', 'assets/smlredast.png');
+        this.game.load.image('bigGreyAst', 'assets/biggreyast.png');
+        this.game.load.image('medGreyAst', 'assets/medgreyast.png');
+        this.game.load.image('smlGreyAst', 'assets/smlgreyast.png');
+        this.game.load.image('bigBrownAst', 'assets/bigbrownast.png');
+        this.game.load.image('medBrownAst', 'assets/medbrownast.png');
+        this.game.load.image('smlBrownAst', 'assets/smlbrownast.png');
+        this.game.load.image('bigBlueAst', 'assets/bigblueast.png');
+        this.game.load.image('medBlueAst', 'assets/medblueast.png');
+        this.game.load.image('smlBlueAst', 'assets/smlblueast.png');
+        this.game.load.image('bigWhiteAst', 'assets/bigwhiteast.png');
+        this.game.load.image('medWhiteAst', 'assets/medwhiteast.png');
+        this.game.load.image('smlWhiteAst', 'assets/smlwhiteast.png');
     },
     
     create: function() {
@@ -88,6 +104,10 @@ var GameState = {
         this.weapon.fireRate = this.FIRE_RATE;
         // Bullets come from the ship's tip
         this.weapon.trackSprite(this.ship, 19, 0, true);
+
+        // --- ASTEROID SPAWNS
+
+        asteroids = game.add.group();
         
         // --- ENEMY SPAWNS
         
@@ -135,7 +155,7 @@ var GameState = {
         
         // --- FIRE WEAPON
         
-        // Fires .with mouse click
+        // Fires with mouse click
         if (this.game.input.activePointer.isDown) {
             this.weapon.fire();
         }   
@@ -158,6 +178,25 @@ var aggro = function(sprite, ship, distance) {
     }
     
 };
+
+// --- ASTEROIDS
+
+// Asteroid template with physics and standard variables
+var Asteroid = function(game, x, y, image, speed, health) {
+
+    this.game = game;
+    this.speed = speed;
+    this.health = health;
+
+    Phaser.Sprite.call(this, game, x, y, image);
+
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.collideWorldBounds = true;
+
+    
+
+}
 
 // --- ENEMIES
 
