@@ -32,6 +32,12 @@ var GameState = {
         this.BRUISER_HEALTH = 30;
         this.CAPTAIN_SPEED = 300;
         this.ESCAPE_POD_SPEED = 350;
+         this.BIG_AST_SPEED = 10;
+        this.MED_AST_SPEED = 20;
+        this.SML_AST_SPEED = 30;
+        this.BIG_AST_HEALTH = 30;
+        this.MED_AST_HEALTH = 20;
+        this.SML_AST_HEALTH = 10;
         
         // Initiate physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -54,7 +60,7 @@ var GameState = {
         this.game.load.image('bigRedAst', 'assets/bigredast.png');
         this.game.load.image('medRedAst', 'assets/medredast.png');
         this.game.load.image('smlRedAst', 'assets/smlredast.png');
-        this.game.load.image('bigGreyAst', 'assets/biggreyast.png');
+        this.game.load.image('bigGreyAst', 'assets/biggredast.png');
         this.game.load.image('medGreyAst', 'assets/medgreyast.png');
         this.game.load.image('smlGreyAst', 'assets/smlgreyast.png');
         this.game.load.image('bigBrownAst', 'assets/bigbrownast.png');
@@ -107,7 +113,16 @@ var GameState = {
 
         // --- ASTEROID SPAWNS
 
-        asteroids = game.add.group();
+        asteroids = this.game.add.group();
+        for( var i=0; i<8; i++){
+        var ast =new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', this.BASIC_SPEED, this.BASIC_HEALTH)
+         ast.body.bounce.set(0.8);
+          ast.scale.setTo(0.75);
+        //ast.body.gravity.set(0, 18);
+        ast.body.velocity.setTo(50,50);
+        asteroids.add(ast);
+
+         }
         
         // --- ENEMY SPAWNS
         
@@ -163,6 +178,7 @@ var GameState = {
         bruisePool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
         basicPool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
         capnPool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
+        asteroids.forEachAlive(bulletcollision, this,this.weapon);
         
     }
 
@@ -178,6 +194,29 @@ var aggro = function(sprite, ship, distance) {
     }
     
 };
+var bulletcollision=function(sprite,weapon){
+    
+    this.physics.arcade.overlap(weapon.bullets,sprite,checkOverlap, null, this);
+
+
+}
+var checkOverlap=function(sprite){
+
+    if(sprite.health<=0){
+
+ sprite.kill();
+
+  }else{
+
+    sprite.health--;
+  }
+
+//game.camera.follow(invis);
+
+//hitcount-=0;
+
+}
+
 
 // --- ASTEROIDS
 
@@ -188,6 +227,7 @@ var Asteroid = function(game, x, y, image, speed, health) {
     this.speed = speed;
     this.health = health;
 
+
     Phaser.Sprite.call(this, game, x, y, image);
 
     this.game.physics.arcade.enable(this);
@@ -197,6 +237,8 @@ var Asteroid = function(game, x, y, image, speed, health) {
     
 
 }
+Asteroid.prototype = Object.create(Phaser.Sprite.prototype);
+Asteroid.prototype.constructor = Asteroid;
 
 // --- ENEMIES
 
