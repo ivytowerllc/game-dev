@@ -1,12 +1,8 @@
 var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO);
 
-var basicPool;
-var bruisePool;
-var capnPool;
-var captain;
-var bruiser;
-var basic;
+var enemies;
 var asteroids;
+var enemyWeapon;
 var metalPool;
 var crystalPool;
 var metal;
@@ -27,14 +23,12 @@ var GameState = {
         this.BASIC_BULLET_DAM = 10;
 
         // Establish enemy constants
-        this.AGGRO_RANGE = 200;
         this.BASIC_SPEED = 150;
         this.BASIC_HEALTH = 10;
-        this.BASIC_BULLSP = 300;
-        this.BASIC_BULLRT = 300;
         this.BRUISER_SPEED = 100;
         this.BRUISER_HEALTH = 30;
-        this.CAPTAIN_SPEED = 300;
+        this.CAPTAIN_SPEED = 270;
+        this.CAPTAIN_HEALTH = 50;
         this.ESCAPE_POD_SPEED = 350;
 
         // Establish asteroid constants
@@ -127,7 +121,7 @@ var GameState = {
         // --- ASTEROID SPAWNS
 
         asteroids = this.game.add.group();
-        for( var i=0; i<8; i++){
+        for (var i = 0; i < 8; i++) {
             var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', this.BASIC_SPEED, this.BIG_AST_HEALTH)
             ast.body.bounce.set(0.8);
             ast.scale.setTo(0.75);
@@ -138,31 +132,27 @@ var GameState = {
         // --- ENEMY SPAWNS
 
         // Add basic enemies
-        basicPool = this.game.add.group();
+        enemies = this.game.add.group();
+        enemies.enableBody = true;
         for (var i = 0; i < 5; i++) {
-            basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH);
-            basicPool.add(basic);
-
+            basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
+            enemies.add(basic);
         }
 
         // Add bruiser class enemies
-        bruisePool = this.game.add.group();
         for (var i = 0; i < 2; i++) {
-            bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH);
-            bruisePool.add(bruiser);
-
+            bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
+            enemies.add(bruiser);
         }
 
         // Add captain class enemies
-        capnPool = this.game.add.group();
-        for(var m =0; m < 1; m++) {
-            captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH);
-            capnPool.add(captain);
+        for (var m = 0; m < 1; m++) {
+            captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.ship);
+            enemies.add(captain);
         }
-        //this.game.add.existing(captain);
 
-        this.enemyFire = this.add.group();
-        this.enemyFire.enableBody = true;
+        enemyWeapon = this.add.group();
+        enemyWeapon.enableBody = true;
 
     },
 
@@ -186,46 +176,33 @@ var GameState = {
             this.weapon.fire();
         }
 
-        bruisePool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
-        basicPool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
-        capnPool.forEachAlive(aggro, this, this.ship, this.AGGRO_RANGE);
-        asteroids.forEachAlive(hitAsteroid, this,this.weapon);
+        enemies.forEachAlive(bulletCollision, this, this.weapon);
+        asteroids.forEachAlive(bulletCollision, this, this.weapon);
 
         this.game.physics.arcade.collide(asteroids, asteroids);
     }
 
 };
 
-// Determines aggro
-var aggro = function(sprite, ship, distance) {
+var bulletCollision = function(sprite, weapon) {
 
-    if (Math.abs(sprite.x - ship.x) <= distance && Math.abs(sprite.y - ship.y) <= distance) {
-        this.game.physics.arcade.moveToObject(sprite, ship, 100);
-        var angle = Math.atan2(ship.y - sprite.y, ship.x - sprite.x);
-        sprite.rotation = angle;
-    }
+    this.physics.arcade.overlap(weapon.bullets, sprite, callDamage, null, this);
 
 };
 
-var hitAsteroid = function(sprite,weapon){
+var callDamage = function(sprite, weapon) {
+    
+    var bullet = weapon;
+    bullet.kill();
 
-    this.physics.arcade.overlap(weapon.bullets,sprite,dmgAsteroid, null, this);
-
-    //weapon.killAll();
-};
-
-var dmgAsteroid = function(Asteroid){
-
-    if(Asteroid.health <= 0){
-
-        Asteroid.kill();
-        Asteroid.spawnDrop();
-        this.weapon.killAll();
-
+    if (sprite.health <= 0) {
+        sprite.kill();
+        console.log(sprite.key);
+        if (asteroids.children.indexOf(sprite) > -1) {
+            sprite.spawnDrop();   
+        }
     } else {
-
-        Asteroid.health -= this.BASIC_BULLET_DAM;
-        this.weapon.killAll();
+        sprite.health -= this.BASIC_BULLET_DAM;
     }
 
 //game.camera.follow(invis);
@@ -244,7 +221,6 @@ var Asteroid = function(game, x, y, image, speed, health) {
     this.speed = speed;
     this.health = health;
 
-
     Phaser.Sprite.call(this, game, x, y, image);
 
     this.game.physics.arcade.enable(this);
@@ -255,145 +231,6 @@ var Asteroid = function(game, x, y, image, speed, health) {
 
 Asteroid.prototype = Object.create(Phaser.Sprite.prototype);
 Asteroid.prototype.constructor = Asteroid;
-
-
-// --- CRYSTALS
-
-// Crystal template with physics and standard variables
-var Crystal = function(game,x,y,image,speed){
-
-    this.game = game;
-    this.speed = speed;
-
-    Phaser.Sprite.call(this,game,x,y,image);
-
-    this.game.physics.arcade.enable(this);
-    this.anchor.setTo(0.5);
-    this.body.collideWorldBounds = true;
-
-};
-
-Crystal.prototype = Object.create(Phaser.Sprite.prototype);
-Crystal.prototype.constructor = Crystal;
-
-// --- METALS
-
-// Metal template with physics and standard variables
-var Metal = function(game,x,y,image,speed){
-
-    this.game = game;
-    this.speed = speed;
-
-    Phaser.Sprite.call(this,game,x,y,image);
-
-    this.game.physics.arcade.enable(this);
-    this.anchor.setTo(0.5);
-    this.body.collideWorldBounds = true;
-
-};
-
-Metal.prototype = Object.create(Phaser.Sprite.prototype);
-Metal.prototype.constructor = Metal;
-
-// --- ENEMIES
-
-// Enemy template with physics and standard variables
-var Enemy = function(game, x, y, image, speed, health) {
-
-    this.game = game;
-    this.speed = speed;
-    this.health = health;
-
-    Phaser.Sprite.call(this, game, x, y, image);
-
-    this.game.physics.arcade.enable(this);
-    this.anchor.setTo(0.5);
-    this.body.collideWorldBounds = true;
-    this.minMovementDistanceX = 500;
-    this.maxMovementDistanceY = 500;
-
-    // Create a timer
-    this.moveTimer = this.game.time.create(false);
-    this.moveTimer.start();
-
-    // Time in which the enemies change direction
-    this.recalcMovement = 0.5;
-    this.minimumRecalc = 3;
-    this.nextDirectionChange = 0;
-
-};
-
-Enemy.prototype = Object.create(Phaser.Sprite.prototype);
-Enemy.prototype.constructor = Enemy;
-
-// Random enemy movement around the level
-Enemy.prototype.move = function() {
-
-    var speed = this.speed;
-
-    if (Math.round(this.moveTimer.seconds) > this.nextDirectionChange) {
-
-        var randomMovementDistanceX = Math.round((Math.random() + 1) * this.minMovementDistanceX + this.minMovementDistanceX);
-        var randomMovementDistanceY = Math.round(Math.random() * this.maxMovementDistanceY + this.minMovementDistanceX);
-        var moveToX = this.x;
-        var moveToY = this.y;
-        var moveLeft = false;
-        var moveUp = false;
-
-        this.nextDirectionChange = (Math.random() * this.recalcMovement + this.minimumRecalc);
-
-        if (this.moveTimer) {
-            this.moveTimer.destroy();
-            this.moveTimer.seconds = 0;
-        }
-        this.moveTimer = this.game.time.create(false);
-        this.moveTimer.start();
-
-        if (Math.random() < 0.5) {
-            moveLeft = true;
-        }
-        if (Math.random() < 0.5) {
-            moveUp = true;
-        }
-
-        if (moveLeft && !this.moveRightNextTick) {
-            moveToX -= randomMovementDistanceX;
-            if (moveToX < 0) {
-                moveToX = this.body.width/2;
-                this.moveRightNextTick = true;
-            }
-        } else {
-            moveToX += randomMovementDistanceX;
-            this.moveRightNextTick = false;
-            if (moveToX > this.game.world.width) {
-                moveToX = this.game.world.width - this.body.width/2;
-            }
-        }
-
-        if (moveUp && !this.moveDownNextTick) {
-            moveToY -= randomMovementDistanceY;
-            if (moveToY < 0) {
-                moveToY = this.body.height/2;
-                this.moveDownNextTick = true;
-            }
-        } else {
-            moveToY += randomMovementDistanceY;
-            this.moveDownNextTick = false;
-            if (moveToY > this.game.world.height) {
-                moveToY = this.game.world.height - this.body.height/2;
-            }
-        }
-
-        this.lastMoveToX = moveToX;
-        this.lastMoveToY = moveToY;
-
-        this.game.physics.arcade.moveToXY(this, moveToX, moveToY, speed);
-        var angle = Math.atan2(moveToY - this.y, moveToX - this.x);
-        this.rotation = angle;
-
-    }
-
-};
 
 Asteroid.prototype.spawnDrop = function(){
 
@@ -596,16 +433,165 @@ Asteroid.prototype.spawnDrop = function(){
     }
 };
 
-Enemy.prototype.update = function() {
-
-    this.move();
-
-};
-
 Asteroid.prototype.update = function(){
 
     this.angle += 0.5;
 
+};
+
+// --- CRYSTALS
+
+// Crystal template with physics and standard variables
+var Crystal = function(game, x, y, image, speed) {
+
+    this.game = game;
+    this.speed = speed;
+
+    Phaser.Sprite.call(this, game, x, y, image);
+
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.collideWorldBounds = true;
+
+};
+
+Crystal.prototype = Object.create(Phaser.Sprite.prototype);
+Crystal.prototype.constructor = Crystal;
+
+// --- METALS
+
+// Metal template with physics and standard variables
+var Metal = function(game, x, y, image, speed) {
+
+    this.game = game;
+    this.speed = speed;
+
+    Phaser.Sprite.call(this, game, x, y, image);
+
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.collideWorldBounds = true;
+
+};
+
+Metal.prototype = Object.create(Phaser.Sprite.prototype);
+Metal.prototype.constructor = Metal;
+
+// --- ENEMIES
+
+// Enemy template with physics and standard variables
+var Enemy = function(game, x, y, image, speed, health, player) {
+    
+    this.game = game;
+    this.speed = speed;
+    this.health = health;
+    this.player = player;
+    this.aggroRange = 200;
+    this.minDist = 100;
+    
+    Phaser.Sprite.call(this, game, x, y, image);
+    
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.collideWorldBounds = true;
+    this.minDistX = 350;
+    this.maxDistY = 350;
+    
+    // Create a timer
+    this.moveTimer = this.game.time.create(false);
+    this.moveTimer.start();
+    
+    // Time in which the enemies change direction
+    this.recalcMovement = 0.5;
+    this.minimumRecalc = 3;
+    this.nextTurn = 0;
+    
+};
+
+Enemy.prototype = Object.create(Phaser.Sprite.prototype);
+Enemy.prototype.constructor = Enemy;
+
+// Random enemy movement around the level
+Enemy.prototype.move = function() {
+    
+    if (Math.round(this.moveTimer.seconds) > this.nextTurn) {
+        
+        var randomDistX = Math.round((Math.random() + 1) * this.minDistX + this.minDistX);
+        var randomDistY = Math.round(Math.random() * this.maxDistY + this.minDistX);
+        var moveX = this.x;
+        var moveY = this.y;
+        var moveLeft = false;
+        var moveUp = false;
+        
+        this.nextTurn = (Math.random() * this.recalcMovement + this.minimumRecalc);
+        
+        if (this.moveTimer) {
+            this.moveTimer.destroy();
+            this.moveTimer.seconds = 0;
+        }
+        this.moveTimer = this.game.time.create(false);
+        this.moveTimer.start();
+        
+        if (Math.random() < 0.5) {
+            moveLeft = true;
+        }
+        if (Math.random() < 0.5) {
+            moveUp = true;
+        }
+        
+        if (moveLeft && !this.moveRightNext) {
+            moveX -= randomDistX;
+            if (moveX < 0) {
+                moveX = this.body.width/2;
+                this.moveRightNext = true;
+            }
+        } else {
+            moveX += randomDistX;
+            this.moveRightNext = false;
+            if (moveX > this.game.world.width) {
+                moveX = this.game.world.width - this.body.width/2;
+            }
+        }
+            
+        if (moveUp && !this.moveDownNext) {
+            moveY -= randomDistY;
+            if (moveY < 0) {
+                moveY = this.body.height/2;
+                this.moveDownNext = true;
+            }
+        } else {
+            moveY += randomDistY;
+            this.moveDownNext = false;
+            if (moveY > this.game.world.height) {
+                moveY = this.game.world.height - this.body.height/2;
+            }
+        }
+        
+        this.game.physics.arcade.moveToXY(this, moveX, moveY, this.speed);
+        var angle = Math.atan2(moveY - this.y, moveX - this.x);
+        this.rotation = angle;
+        
+    }
+    
+};
+
+Enemy.prototype.update = function() {
+    
+    var distance = this.game.physics.arcade.distanceBetween(this.player, this);
+    
+    if (distance <= this.aggroRange) {
+        if (distance >= this.minDist) {
+            this.game.physics.arcade.moveToXY(this, this.player.x, this.player.y, this.speed);
+        } else {
+            this.body.velocity.setTo(0);
+        }
+        var angle = Math.atan2(this.player.y - this.y, this.player.x - this.x);
+        this.rotation = angle;
+        
+    } else {
+        this.move();
+    }
+    
 };
 
 // --- INITIATE GAME
