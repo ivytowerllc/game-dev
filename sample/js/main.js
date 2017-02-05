@@ -225,7 +225,9 @@ var GameState = {
 
         // Fires with mouse click
         if (this.game.input.activePointer.isDown) {
-            this.game.physics.arcade.moveToPointer(this.ship, 150);
+            if (this.game.physics.arcade.distanceToPointer(this.ship) > 25) {
+                this.game.physics.arcade.moveToPointer(this.ship, 150);
+            }
             this.weapon.fire();
         }
 
