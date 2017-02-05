@@ -1,15 +1,22 @@
 var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO);
 
-var enemies;
 var asteroids;
-var enemyWeapon;
-var metals;
-var crystals;
 var metal;
+var metals;
 var crystal;
+var crystals;
+var enemies;
+var enemyWeapon;
 var score = 0;
 var scoreText;
 
+// Asteroids variables
+var BIG_AST_SPEED = 10;
+var MED_AST_SPEED = 20;
+var SML_AST_SPEED = 30;
+var BIG_AST_HEALTH = 30;
+var MED_AST_HEALTH = 20;
+var SML_AST_HEALTH = 10;
 
 // --- GAMESTATE
 
@@ -18,7 +25,7 @@ var GameState = {
     init: function() {
 
         // Establish player constants
-        this.MAX_SPEED = 300;
+        this.SHIP_SPEED = 300;
 
         // Establish bullet constants
         this.BULLET_SPEED = 600;
@@ -33,14 +40,6 @@ var GameState = {
         this.CAPTAIN_SPEED = 270;
         this.CAPTAIN_HEALTH = 50;
         this.ESCAPE_POD_SPEED = 350;
-
-        // Establish asteroid constants
-        this.BIG_AST_SPEED = 10;
-        this.MED_AST_SPEED = 20;
-        this.SML_AST_SPEED = 30;
-        this.BIG_AST_HEALTH = 30;
-        this.MED_AST_HEALTH = 20;
-        this.SML_AST_HEALTH = 10;
 
         // Establish pick-up constants
         this.METAL_SPEED = 2;
@@ -131,12 +130,15 @@ var GameState = {
 
         asteroids = this.game.add.group();
         for (var i = 0; i < 8; i++) {
-            var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', this.BIG_AST_SPEED, this.BIG_AST_HEALTH)
+            var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', BIG_AST_SPEED, BIG_AST_HEALTH)
             ast.body.bounce.set(0.8);
             ast.scale.setTo(0.75);
             ast.body.velocity.setTo(50 ,50);
             asteroids.add(ast);
         }
+        
+        crystals = this.game.add.group();
+        metals = this.game.add.group();
 
         // --- ENEMY SPAWNS
 
@@ -267,8 +269,6 @@ Asteroid.prototype.spawnDrop = function(){
     var crystalDropAmt = 1;
     var whichCrystal = Math.ceil(Math.random() * 9);
     var plusOrMinus;
-    crystals = this.game.add.group();
-    metals = this.game.add.group();
     if(this.health < 1){
 
         if(metalDropRate < 10) {
@@ -460,7 +460,7 @@ Asteroid.prototype.spawnDrop = function(){
 Asteroid.prototype.bust = function(){
     if(this.key == 'bigBlueAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBlueAst', this.MED_AST_SPEED, this.MED_AST_HEALTH);
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBlueAst', MED_AST_SPEED, MED_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
@@ -469,7 +469,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'medBlueAst'){
         for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
-            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBlueAst', this.SML_AST_SPEED, this.SML_AST_HEALTH);
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBlueAst', SML_AST_SPEED, SML_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
