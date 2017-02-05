@@ -177,7 +177,7 @@ var GameState = {
         this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
 
         if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
-            this.game.physics.arcade.moveToPointer(this.ship, this.MAX_SPEED);
+            this.game.physics.arcade.moveToPointer(this.ship, this.SHIP_SPEED);
         } else {
             this.ship.body.velocity.setTo(0);
         }
