@@ -1,3 +1,5 @@
+/** Copyright Ivy Tower, LLC **/
+
 var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO);
 
 var asteroids;
@@ -34,11 +36,11 @@ var GameState = {
 
         // Establish enemy constants
         this.BASIC_SPEED = 150;
-        this.BASIC_HEALTH = 10;
+        this.BASIC_HEALTH = 50;
         this.BRUISER_SPEED = 100;
-        this.BRUISER_HEALTH = 30;
+        this.BRUISER_HEALTH = 300;
         this.CAPTAIN_SPEED = 270;
-        this.CAPTAIN_HEALTH = 50;
+        this.CAPTAIN_HEALTH = 100;
         this.ESCAPE_POD_SPEED = 350;
 
         // Establish pick-up constants
@@ -91,10 +93,14 @@ var GameState = {
         // --- GAME SETUP
 
         // Set world bounds
-        this.game.world.setBounds(0, 0, 1500, 1500);
+        this.game.world.setBounds(0, 0, 5000, 5000);
 
         // Simple starry background for now
-        this.game.add.sprite(0, 0, 'bg');
+        var bg = this.game.add.sprite(0, 0, 'bg');
+        bg.x = 0;
+        bg.y = 0;
+        bg.height = this.game.world.height;
+        bg.width = this.game.world.width;
 
         // Set score
         scoreText = game.add.text(0, 0, 'score: 0', { fontSize: '32px', fill: "#FFF" });
@@ -129,12 +135,45 @@ var GameState = {
         // --- ASTEROID SPAWNS
 
         asteroids = this.game.add.group();
-        for (var i = 0; i < 8; i++) {
-            var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', BIG_AST_SPEED, BIG_AST_HEALTH)
-            ast.body.bounce.set(0.8);
-            ast.scale.setTo(0.75);
-            ast.body.velocity.setTo(50 ,50);
-            asteroids.add(ast);
+        for (var i = 0; i < 50; i++) {
+            var whichShade = (Math.ceil(Math.random() * 5));
+            switch (whichShade) {
+                case 1:
+                var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast.body.bounce.set(0.8);
+                    ast.scale.setTo(0.75);
+                    ast.body.velocity.setTo(50, 50);
+                    asteroids.add(ast);
+                    break;
+                case 2:
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigRedAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast.body.bounce.set(0.8);
+                    ast.scale.setTo(0.75);
+                    ast.body.velocity.setTo(50, 50);
+                    asteroids.add(ast);
+                    break;
+                case 3:
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast.body.bounce.set(0.8);
+                    ast.scale.setTo(0.75);
+                    ast.body.velocity.setTo(50, 50);
+                    asteroids.add(ast);
+                    break;
+                case 4:
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast.body.bounce.set(0.8);
+                    ast.scale.setTo(0.75);
+                    ast.body.velocity.setTo(50, 50);
+                    asteroids.add(ast);
+                    break;
+                case 5:
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBrownAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast.body.bounce.set(0.8);
+                    ast.scale.setTo(0.75);
+                    ast.body.velocity.setTo(50, 50);
+                    asteroids.add(ast);
+                    break;
+            }
         }
         
         crystals = this.game.add.group();
@@ -176,7 +215,7 @@ var GameState = {
         this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
         this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
 
-        if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
+        if (this.game.physics.arcade.distanceToPointer(this.ship) > 25) {
             this.game.physics.arcade.moveToPointer(this.ship, this.SHIP_SPEED);
         } else {
             this.ship.body.velocity.setTo(0);
@@ -186,6 +225,7 @@ var GameState = {
 
         // Fires with mouse click
         if (this.game.input.activePointer.isDown) {
+            this.game.physics.arcade.moveToPointer(this.ship, 150);
             this.weapon.fire();
         }
 
@@ -417,7 +457,7 @@ Asteroid.prototype.spawnDrop = function(){
             }
         }
 
-        if(crystalDropRate <= 100){
+        if(crystalDropRate <= 30){
             for (var j = 0; j < crystalDropAmt; j++){
                 switch(whichCrystal){
                     case 1:
@@ -476,8 +516,80 @@ Asteroid.prototype.bust = function(){
             smlAst.scale.setTo(0.25);
             asteroids.add(smlAst);
         }
+    } else if(this.key == 'bigGreyAst') {
+        for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medGreyAst', MED_AST_SPEED, MED_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
+            medAst.body.bounce.set(0.5);
+            medAst.scale.setTo(0.5);
+            asteroids.add(medAst);
+        }
+    } else if(this.key == 'medGreyAst'){
+        for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlGreyAst', SML_AST_SPEED, SML_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
+            smlAst.body.bounce.set(0.5);
+            smlAst.scale.setTo(0.25);
+            asteroids.add(smlAst);
+        }
+    } else if(this.key == 'bigBrownAst') {
+        for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBrownAst', MED_AST_SPEED, MED_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
+            medAst.body.bounce.set(0.5);
+            medAst.scale.setTo(0.5);
+            asteroids.add(medAst);
+        }
+    } else if(this.key == 'medBrownAst'){
+        for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBrownAst', SML_AST_SPEED, SML_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
+            smlAst.body.bounce.set(0.5);
+            smlAst.scale.setTo(0.25);
+            asteroids.add(smlAst);
+        }
+    } else if(this.key == 'bigRedAst') {
+        for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medRedAst', MED_AST_SPEED, MED_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
+            medAst.body.bounce.set(0.5);
+            medAst.scale.setTo(0.5);
+            asteroids.add(medAst);
+        }
+    } else if(this.key == 'medRedAst'){
+        for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlRedAst', SML_AST_SPEED, SML_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
+            smlAst.body.bounce.set(0.5);
+            smlAst.scale.setTo(0.25);
+            asteroids.add(smlAst);
+        }
+    } else if(this.key == 'bigWhiteAst') {
+        for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medWhiteAst', MED_AST_SPEED, MED_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
+            medAst.body.bounce.set(0.5);
+            medAst.scale.setTo(0.5);
+            asteroids.add(medAst);
+        }
+    } else if(this.key == 'medWhiteAst'){
+        for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlWhiteAst', SML_AST_SPEED, SML_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
+            smlAst.body.bounce.set(0.5);
+            smlAst.scale.setTo(0.25);
+            asteroids.add(smlAst);
+        }
     }
-}
+        }
 
 Asteroid.prototype.update = function(){
 
