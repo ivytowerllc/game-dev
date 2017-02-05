@@ -3,10 +3,13 @@ var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO);
 var enemies;
 var asteroids;
 var enemyWeapon;
-var metalPool;
-var crystalPool;
+var metals;
+var crystals;
 var metal;
 var crystal;
+var score = 0;
+var scoreText;
+
 
 // --- GAMESTATE
 
@@ -46,6 +49,9 @@ var GameState = {
 
         // Initiate physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
+
+        this.weapons = [];
+        this.currentWeapon = 0;
 
     },
 
@@ -91,6 +97,9 @@ var GameState = {
         // Simple starry background for now
         this.game.add.sprite(0, 0, 'bg');
 
+        // Set score
+        scoreText = game.add.text(0, 0, 'score: 0', { fontSize: '32px', fill: "#FFF" });
+
         // Add moon for reference point
         this.moon = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'moon');
         this.moon.anchor.setTo(0.5);
@@ -122,7 +131,7 @@ var GameState = {
 
         asteroids = this.game.add.group();
         for (var i = 0; i < 8; i++) {
-            var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', this.BASIC_SPEED, this.BIG_AST_HEALTH)
+            var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', this.BIG_AST_SPEED, this.BIG_AST_HEALTH)
             ast.body.bounce.set(0.8);
             ast.scale.setTo(0.75);
             ast.body.velocity.setTo(50 ,50);
@@ -158,6 +167,8 @@ var GameState = {
 
     update: function() {
 
+        scoreText.alignTo(this.game.camera.view, Phaser.LEFT_TOP);
+
         // --- PLAYER MOVEMENT
 
         this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
@@ -179,6 +190,9 @@ var GameState = {
         enemies.forEachAlive(bulletCollision, this, this.weapon);
         asteroids.forEachAlive(bulletCollision, this, this.weapon);
 
+        game.physics.arcade.overlap(this.ship, crystals, collectCrystal, null, this);
+        game.physics.arcade.overlap(this.ship, metals, collectMetal, null, this);
+
         this.game.physics.arcade.collide(asteroids, asteroids);
     }
 
@@ -199,7 +213,8 @@ var callDamage = function(sprite, weapon) {
         sprite.kill();
         console.log(sprite.key);
         if (asteroids.children.indexOf(sprite) > -1) {
-            sprite.spawnDrop();   
+            sprite.spawnDrop();
+            sprite.bust();
         }
     } else {
         sprite.health -= this.BASIC_BULLET_DAM;
@@ -208,6 +223,18 @@ var callDamage = function(sprite, weapon) {
 //game.camera.follow(invis);
 
 //hitcount-=0;
+
+};
+
+var collectCrystal = function(ship, crystal){
+
+    crystal.kill();
+
+};
+
+var collectMetal = function(ship, metal){
+
+    metal.kill();
 
 };
 
@@ -240,8 +267,8 @@ Asteroid.prototype.spawnDrop = function(){
     var crystalDropAmt = 1;
     var whichCrystal = Math.ceil(Math.random() * 9);
     var plusOrMinus;
-    crystalPool = this.game.add.group();
-    metalPool = this.game.add.group();
+    crystals = this.game.add.group();
+    metals = this.game.add.group();
     if(this.health < 1){
 
         if(metalDropRate < 10) {
@@ -251,7 +278,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 15) {
 
@@ -260,7 +287,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 20) {
 
@@ -269,7 +296,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 25) {
 
@@ -278,7 +305,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 30) {
 
@@ -287,7 +314,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 40) {
 
@@ -296,7 +323,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 45) {
 
@@ -305,7 +332,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 50) {
 
@@ -314,7 +341,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 55) {
 
@@ -323,7 +350,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 60) {
 
@@ -332,7 +359,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 65) {
 
@@ -341,7 +368,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 70) {
 
@@ -350,7 +377,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 75) {
 
@@ -359,7 +386,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 80) {
 
@@ -368,7 +395,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 85) {
 
@@ -377,7 +404,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         } else if(metalDropRate < 90) {
 
@@ -386,7 +413,7 @@ Asteroid.prototype.spawnDrop = function(){
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
-                metalPool.add(metal);
+                metals.add(metal);
             }
         }
 
@@ -424,14 +451,33 @@ Asteroid.prototype.spawnDrop = function(){
                 var minusOrPlus = Math.random() < 0.5 ? 1 : -1;
                 crystal.body.velocity.setTo(5 * minusOrPlus, 5 * minusOrPlus);
                 crystal.body.bounce.set(0.5);
-                crystalPool.add(crystal);
+                crystals.add(crystal);
             }
         }
-
-
-
     }
 };
+
+Asteroid.prototype.bust = function(){
+    if(this.key == 'bigBlueAst') {
+        for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBlueAst', this.MED_AST_SPEED, this.MED_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
+            medAst.body.bounce.set(0.5);
+            medAst.scale.setTo(0.5);
+            asteroids.add(medAst);
+        }
+    } else if(this.key == 'medBlueAst'){
+        for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBlueAst', this.SML_AST_SPEED, this.SML_AST_HEALTH);
+            plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+            smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
+            smlAst.body.bounce.set(0.5);
+            smlAst.scale.setTo(0.25);
+            asteroids.add(smlAst);
+        }
+    }
+}
 
 Asteroid.prototype.update = function(){
 
@@ -457,6 +503,7 @@ var Crystal = function(game, x, y, image, speed) {
 
 Crystal.prototype = Object.create(Phaser.Sprite.prototype);
 Crystal.prototype.constructor = Crystal;
+
 
 // --- METALS
 
