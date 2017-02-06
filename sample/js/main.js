@@ -660,7 +660,7 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.speed = speed;
     this.health = health;
     this.player = player;
-    this.aggroRange = 300;
+    this.aggroRange = 250;
     this.minDist = 100;
     this.shootNow = 0;
     
