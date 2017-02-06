@@ -8,14 +8,18 @@ var metals;
 var crystal;
 var crystals;
 var enemies;
+var enemyBullet;
 var enemyWeapon;
 var score = 0;
 var scoreText;
 
+// Bullet damages
+var SHIP_BASIC_DAM = 10; // Standard weapon
+var ENEM_BASIC_DAM = 5;
+var ENEM_BRUIS_DAM = 20;
+var ENEM_CAPTN_DAM = 5; // For each of 3 shots
+
 // Asteroids variables
-var BIG_AST_SPEED = 10;
-var MED_AST_SPEED = 20;
-var SML_AST_SPEED = 30;
 var BIG_AST_HEALTH = 30;
 var MED_AST_HEALTH = 20;
 var SML_AST_HEALTH = 10;
@@ -28,11 +32,11 @@ var GameState = {
 
         // Establish player constants
         this.SHIP_SPEED = 300;
+        this.SHIP_HEALTH = 200;
 
         // Establish bullet constants
         this.BULLET_SPEED = 600;
         this.FIRE_RATE = 200;
-        this.BASIC_BULLET_DAM = 10;
 
         // Establish enemy constants
         this.BASIC_SPEED = 150;
@@ -44,8 +48,6 @@ var GameState = {
         this.ESCAPE_POD_SPEED = 350;
 
         // Establish pick-up constants
-        this.METAL_SPEED = 2;
-        this.CRYSTAL_SPEED = 3;
         this.ANOMALY_SPEED = 1;
 
         // Initiate physics
@@ -104,7 +106,7 @@ var GameState = {
 
         // Set score
         scoreText = game.add.text(0, 0, 'score: 0', { fontSize: '32px', fill: "#FFF" });
-       scoreText.fixedToCamera = true;
+        scoreText.fixedToCamera = true;
 
         // Add moon for reference point
         this.moon = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'moon');
@@ -118,6 +120,7 @@ var GameState = {
         this.ship.anchor.setTo(0.5);
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+        this.ship.health = this.SHIP_HEALTH;
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -140,35 +143,35 @@ var GameState = {
             var whichShade = (Math.ceil(Math.random() * 5));
             switch (whichShade) {
                 case 1:
-                var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
                     ast.body.velocity.setTo(50, 50);
                     asteroids.add(ast);
                     break;
                 case 2:
-                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigRedAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigRedAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
                     ast.body.velocity.setTo(50, 50);
                     asteroids.add(ast);
                     break;
                 case 3:
-                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
                     ast.body.velocity.setTo(50, 50);
                     asteroids.add(ast);
                     break;
                 case 4:
-                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
                     ast.body.velocity.setTo(50, 50);
                     asteroids.add(ast);
                     break;
                 case 5:
-                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBrownAst', BIG_AST_SPEED, BIG_AST_HEALTH)
+                    ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBrownAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
                     ast.body.velocity.setTo(50, 50);
@@ -234,6 +237,7 @@ var GameState = {
 
         enemies.forEachAlive(bulletCollision, this, this.weapon);
         asteroids.forEachAlive(bulletCollision, this, this.weapon);
+        this.physics.arcade.overlap(enemyWeapon, this.ship, callDamage, null, this);
 
         game.physics.arcade.overlap(this.ship, crystals, collectCrystal, null, this);
         game.physics.arcade.overlap(this.ship, metals, collectMetal, null, this);
@@ -253,21 +257,32 @@ var callDamage = function(sprite, weapon) {
     
     var bullet = weapon;
     bullet.kill();
+    
+    var damage;
+    switch (weapon.key) {
+        case 'bullet':
+            damage = SHIP_BASIC_DAM;
+            break;
+        case 'basicb':
+            damage = ENEM_BASIC_DAM;
+            break;
+        case 'bruiserb':
+            damage = ENEM_BRUIS_DAM;
+            break;
+        case 'captainb':
+            damage = ENEM_CAPTN_DAM;
+            break;
+    }
 
     if (sprite.health <= 0) {
         sprite.kill();
-        console.log(sprite.key);
         if (asteroids.children.indexOf(sprite) > -1) {
             sprite.spawnDrop();
             sprite.bust();
         }
     } else {
-        sprite.health -= this.BASIC_BULLET_DAM;
+        sprite.health -= damage;
     }
-
-//game.camera.follow(invis);
-
-//hitcount-=0;
 
 };
 
@@ -287,10 +302,9 @@ var collectMetal = function(ship, metal){
 // --- ASTEROIDS
 
 // Asteroid template with physics and standard variables
-var Asteroid = function(game, x, y, image, speed, health) {
+var Asteroid = function(game, x, y, image, health) {
 
     this.game = game;
-    this.speed = speed;
     this.health = health;
 
     Phaser.Sprite.call(this, game, x, y, image);
@@ -317,7 +331,7 @@ Asteroid.prototype.spawnDrop = function(){
         if(metalDropRate < 10) {
 
             for (var h = 0; h < metalDropAmt; h++) {
-                metal = new Metal(this.game, this.x + (h*Math.ceil(Math.random() * 20)), this.y + (h*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (h*Math.ceil(Math.random() * 20)), this.y + (h*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -326,7 +340,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 15) {
 
             for (var k = 0; k < metalDropAmt; k++) {
-                metal = new Metal(this.game, this.x + (k*Math.ceil(Math.random() * 20)), this.y + (k*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (k*Math.ceil(Math.random() * 20)), this.y + (k*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -335,7 +349,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 20) {
 
             for (var l = 0; l < metalDropAmt; l++) {
-                metal = new Metal(this.game, this.x + (l*Math.ceil(Math.random() * 20)), this.y + (l*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (l*Math.ceil(Math.random() * 20)), this.y + (l*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -344,7 +358,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 25) {
 
             for (var m = 0; m < metalDropAmt; m++) {
-                metal = new Metal(this.game, this.x + (m*Math.ceil(Math.random() * 20)), this.y + (m*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (m*Math.ceil(Math.random() * 20)), this.y + (m*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -353,7 +367,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 30) {
 
             for (var n = 0; n < metalDropAmt; n++) {
-                metal = new Metal(this.game, this.x + (n*Math.ceil(Math.random() * 20)), this.y + (n*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (n*Math.ceil(Math.random() * 20)), this.y + (n*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -362,7 +376,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 40) {
 
             for (var o = 0; o < metalDropAmt; o++) {
-                metal = new Metal(this.game, this.x + (o*Math.ceil(Math.random() * 20)), this.y + (o*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (o*Math.ceil(Math.random() * 20)), this.y + (o*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -371,7 +385,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 45) {
 
             for (var p = 0; p < metalDropAmt; p++) {
-                metal = new Metal(this.game, this.x + (p*Math.ceil(Math.random() * 20)), this.y + (p*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (p*Math.ceil(Math.random() * 20)), this.y + (p*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -380,7 +394,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 50) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -389,7 +403,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 55) {
 
             for (var q = 0; q < metalDropAmt; q++) {
-                metal = new Metal(this.game, this.x + (q*Math.ceil(Math.random() * 20)), this.y + (q*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (q*Math.ceil(Math.random() * 20)), this.y + (q*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -398,7 +412,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 60) {
 
             for (var r = 0; r < metalDropAmt; r++) {
-                metal = new Metal(this.game, this.x + (r*Math.ceil(Math.random() * 20)), this.y + (r*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (r*Math.ceil(Math.random() * 20)), this.y + (r*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -407,7 +421,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 65) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -416,7 +430,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 70) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -425,7 +439,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 75) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -434,7 +448,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 80) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -443,7 +457,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 85) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + (i*Math.ceil(Math.random() * 20)), this.y + (i*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -452,7 +466,7 @@ Asteroid.prototype.spawnDrop = function(){
         } else if(metalDropRate < 90) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + ((i+1)*Math.ceil(Math.random() * 20)), this.y + ((i+1)*Math.ceil(Math.random() * 20)), 'star', this.METAL_SPEED);
+                metal = new Metal(this.game, this.x + ((i+1)*Math.ceil(Math.random() * 20)), this.y + ((i+1)*Math.ceil(Math.random() * 20)), 'star');
                 plusOrMinus = Math.random() < 0.5 ? -1 : 1;
                 metal.body.velocity.setTo(5 * plusOrMinus,5 * plusOrMinus);
                 metal.body.bounce.set(0.5);
@@ -464,31 +478,31 @@ Asteroid.prototype.spawnDrop = function(){
             for (var j = 0; j < crystalDropAmt; j++){
                 switch(whichCrystal){
                     case 1:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 2:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 3:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 4:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 5:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 6:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 7:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 8:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                     case 9:
-                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond', this.CRYSTAL_SPEED);
+                        crystal = new Crystal(this.game, this.x + ((j+1)*Math.ceil(Math.random() * 20)), this.y + ((j+1)*Math.ceil(Math.random() * 20)), 'diamond');
                         break;
                 }
                 var minusOrPlus = Math.random() < 0.5 ? 1 : -1;
@@ -503,7 +517,7 @@ Asteroid.prototype.spawnDrop = function(){
 Asteroid.prototype.bust = function(){
     if(this.key == 'bigBlueAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBlueAst', MED_AST_SPEED, MED_AST_HEALTH);
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBlueAst', MED_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
@@ -512,7 +526,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'medBlueAst'){
         for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
-            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBlueAst', SML_AST_SPEED, SML_AST_HEALTH);
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBlueAst', SML_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
@@ -521,7 +535,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'bigGreyAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medGreyAst', MED_AST_SPEED, MED_AST_HEALTH);
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medGreyAst', MED_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
@@ -530,7 +544,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'medGreyAst'){
         for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
-            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlGreyAst', SML_AST_SPEED, SML_AST_HEALTH);
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlGreyAst', SML_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
@@ -539,7 +553,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'bigBrownAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBrownAst', MED_AST_SPEED, MED_AST_HEALTH);
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medBrownAst', MED_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
@@ -548,7 +562,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'medBrownAst'){
         for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
-            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBrownAst', SML_AST_SPEED, SML_AST_HEALTH);
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlBrownAst', SML_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
@@ -557,7 +571,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'bigRedAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medRedAst', MED_AST_SPEED, MED_AST_HEALTH);
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medRedAst', MED_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
@@ -566,7 +580,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'medRedAst'){
         for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
-            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlRedAst', SML_AST_SPEED, SML_AST_HEALTH);
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlRedAst', SML_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
@@ -575,7 +589,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'bigWhiteAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medWhiteAst', MED_AST_SPEED, MED_AST_HEALTH);
+            var medAst = new Asteroid(this.game, this.x + ((a + 1) * Math.ceil(Math.random() * 20)), this.y + ((a + 1) * Math.ceil(Math.random() * 20)), 'medWhiteAst', MED_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
@@ -584,7 +598,7 @@ Asteroid.prototype.bust = function(){
         }
     } else if(this.key == 'medWhiteAst'){
         for(var b = 0; b < (Math.ceil(Math.random() * 3)); b++){
-            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlWhiteAst', SML_AST_SPEED, SML_AST_HEALTH);
+            var smlAst = new Asteroid(this.game, this.x + ((b+1)*Math.ceil(Math.random() * 20)), this.y + ((b+1)*Math.ceil(Math.random() * 20)), 'smlWhiteAst', SML_AST_HEALTH);
             plusOrMinus = Math.random() < 0.5 ? -1 : 1;
             smlAst.body.velocity.setTo(75 * plusOrMinus,75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
@@ -603,10 +617,9 @@ Asteroid.prototype.update = function(){
 // --- CRYSTALS
 
 // Crystal template with physics and standard variables
-var Crystal = function(game, x, y, image, speed) {
+var Crystal = function(game, x, y, image) {
 
     this.game = game;
-    this.speed = speed;
 
     Phaser.Sprite.call(this, game, x, y, image);
 
@@ -623,10 +636,9 @@ Crystal.prototype.constructor = Crystal;
 // --- METALS
 
 // Metal template with physics and standard variables
-var Metal = function(game, x, y, image, speed) {
+var Metal = function(game, x, y, image) {
 
     this.game = game;
-    this.speed = speed;
 
     Phaser.Sprite.call(this, game, x, y, image);
 
@@ -642,7 +654,7 @@ Metal.prototype.constructor = Metal;
 // --- ENEMIES
 
 // Enemy template with physics and standard variables
-var Enemy = function(game, x, y, image, speed, health, player) {
+var Enemy = function(game, x, y, type, speed, health, player) {
     
     this.game = game;
     this.speed = speed;
@@ -650,18 +662,23 @@ var Enemy = function(game, x, y, image, speed, health, player) {
     this.player = player;
     this.aggroRange = 200;
     this.minDist = 100;
+    this.shootNow = 0;
     
-    Phaser.Sprite.call(this, game, x, y, image);
+    Phaser.Sprite.call(this, game, x, y, type);
     
     this.game.physics.arcade.enable(this);
     this.anchor.setTo(0.5);
     this.body.collideWorldBounds = true;
+    this.body.drag.setTo(10, 10);
     this.minDistX = 350;
     this.maxDistY = 350;
     
     // Create a timer
     this.moveTimer = this.game.time.create(false);
     this.moveTimer.start();
+    
+    this.shootTimer = this.game.time.create(false);
+    this.shootTimer.start();
     
     // Time in which the enemies change direction
     this.recalcMovement = 0.5;
@@ -741,7 +758,7 @@ Enemy.prototype.update = function() {
     
     var distance = this.game.physics.arcade.distanceBetween(this.player, this);
     
-    if (distance <= this.aggroRange) {
+    if (distance <= this.aggroRange && this.player.alive == true) {
         if (distance >= this.minDist) {
             this.game.physics.arcade.moveToXY(this, this.player.x, this.player.y, this.speed);
         } else {
@@ -749,12 +766,64 @@ Enemy.prototype.update = function() {
         }
         var angle = Math.atan2(this.player.y - this.y, this.player.x - this.x);
         this.rotation = angle;
-        
+        this.shoot();
     } else {
         this.move();
     }
     
 };
+
+Enemy.prototype.shoot = function() {
+    
+    switch (this.key) {
+        case 'basic':
+            var timeNow = this.shootTimer.ms;
+            if (this.shootNow < timeNow) {
+                enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'basicb', this.player, 450, null);
+                enemyWeapon.add(enemyBullet);
+                this.shootNow = timeNow + 1000;
+            }
+            break;
+        case 'bruiser':
+            var timeNow = this.shootTimer.ms;
+            if (this.shootNow < timeNow) {
+                enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'bruiserb', this.player, 300, null);
+                enemyWeapon.add(enemyBullet);
+                this.shootNow = timeNow + 2000;
+            }
+            break;
+        case 'captain':
+            var timeNow = this.shootTimer.ms;
+            if (this.shootNow < timeNow) {
+                enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'captainb', this.player, 600, null);
+                enemyWeapon.add(enemyBullet);
+                enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'captainb', this.player, 600, 15);
+                enemyWeapon.add(enemyBullet);
+                enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'captainb', this.player, 600, -15);
+                enemyWeapon.add(enemyBullet);
+                this.shootNow = timeNow + 1000;
+            }
+            break;
+    }
+    
+};
+
+var EnemyBullet = function(game, x, y, type, player, speed, posVar) {
+
+    this.game = game;
+
+    Phaser.Sprite.call(this, game, x, y, type);
+
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.checkWorldBounds = true;
+    this.outOfBoundsKill = true;
+    this.game.physics.arcade.moveToXY(this, player.x + posVar, player.y + posVar, speed);
+
+};
+
+EnemyBullet.prototype = Object.create(Phaser.Sprite.prototype);
+EnemyBullet.prototype.constructor = EnemyBullet;
 
 // --- INITIATE GAME
 
