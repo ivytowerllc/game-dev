@@ -43,7 +43,7 @@ var GameState = {
         this.BASIC_HEALTH = 50;
         this.BRUISER_SPEED = 100;
         this.BRUISER_HEALTH = 300;
-        this.CAPTAIN_SPEED = 270;
+        this.CAPTAIN_SPEED = 240;
         this.CAPTAIN_HEALTH = 100;
         this.ESCAPE_POD_SPEED = 350;
 
@@ -130,7 +130,7 @@ var GameState = {
 
         // Adds bullets from a pool of 30 and applies constants
         this.weapon = this.game.add.weapon(30, 'bullet');
-        this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
+        this.weapon.bulletKillType = Phaser.Weapon.KILL_CAMERA_BOUNDS;
         this.weapon.bulletSpeed = this.BULLET_SPEED;
         this.weapon.fireRate = this.FIRE_RATE;
         // Bullets come from the ship's tip
@@ -230,7 +230,7 @@ var GameState = {
         // Fires with mouse click
         if (this.game.input.activePointer.isDown) {
             if (this.game.physics.arcade.distanceToPointer(this.ship) > 25) {
-                this.game.physics.arcade.moveToPointer(this.ship, 150);
+                this.game.physics.arcade.moveToPointer(this.ship, 100);
             }
             this.weapon.fire();
         }
@@ -660,7 +660,7 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.speed = speed;
     this.health = health;
     this.player = player;
-    this.aggroRange = 200;
+    this.aggroRange = 300;
     this.minDist = 100;
     this.shootNow = 0;
     
@@ -758,7 +758,7 @@ Enemy.prototype.update = function() {
     
     var distance = this.game.physics.arcade.distanceBetween(this.player, this);
     
-    if (distance <= this.aggroRange && this.player.alive == true && this.alive == true) {
+    if (distance <= this.aggroRange && this.player.alive == true) {
         if (distance >= this.minDist) {
             this.game.physics.arcade.moveToXY(this, this.player.x, this.player.y, this.speed);
         } else {
