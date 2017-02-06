@@ -758,7 +758,7 @@ Enemy.prototype.update = function() {
     
     var distance = this.game.physics.arcade.distanceBetween(this.player, this);
     
-    if (distance <= this.aggroRange && this.player.alive == true) {
+    if (distance <= this.aggroRange && this.player.alive == true && this.alive == true) {
         if (distance >= this.minDist) {
             this.game.physics.arcade.moveToXY(this, this.player.x, this.player.y, this.speed);
         } else {
