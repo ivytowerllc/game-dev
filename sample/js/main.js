@@ -18,11 +18,16 @@ var SHIP_BASIC_DAM = 10; // Standard weapon
 var ENEM_BASIC_DAM = 5;
 var ENEM_BRUIS_DAM = 20;
 var ENEM_CAPTN_DAM = 5; // For each of 3 shots
+var ENEM_GOVMT_DAM = 5;
 
 // Asteroids variables
 var BIG_AST_HEALTH = 30;
 var MED_AST_HEALTH = 20;
 var SML_AST_HEALTH = 10;
+
+// Escape pod variables
+var ESCAPE_POD_SPEED = 300;
+var ESCAPE_POD_HEALTH = 10;
 
 // --- GAMESTATE
 
@@ -45,7 +50,8 @@ var GameState = {
         this.BRUISER_HEALTH = 300;
         this.CAPTAIN_SPEED = 240;
         this.CAPTAIN_HEALTH = 100;
-        this.ESCAPE_POD_SPEED = 350;
+        this.GOVT_SPEED = 150;
+        this.GOVT_HEALTH = 50;
 
         // Establish pick-up constants
         this.ANOMALY_SPEED = 1;
@@ -70,6 +76,9 @@ var GameState = {
         this.game.load.image('bruiserb', 'assets/bruisbull.png');
         this.game.load.image('captain', 'assets/capten.png');
         this.game.load.image('captainb', 'assets/captbull.png');
+        this.game.load.image('escape', 'assets/escape.png');
+        this.game.load.image('govt', 'assets/govten.png');
+        this.game.load.image('govtb', 'assets/govtbull.png');
         this.game.load.image('moon', 'assets/moon.png');
         this.game.load.image('bigRedAst', 'assets/bigredast.png');
         this.game.load.image('medRedAst', 'assets/medredast.png');
@@ -204,6 +213,12 @@ var GameState = {
             captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.ship);
             enemies.add(captain);
         }
+        
+        // Add government enemies
+        for (var i = 0; i < 5; i++) {
+            var govt = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
+            enemies.add(govt);
+        }
 
         enemyWeapon = this.add.group();
         enemyWeapon.enableBody = true;
@@ -230,7 +245,7 @@ var GameState = {
         // Fires with mouse click
         if (this.game.input.activePointer.isDown) {
             if (this.game.physics.arcade.distanceToPointer(this.ship) > 25) {
-                this.game.physics.arcade.moveToPointer(this.ship, 100);
+                this.game.physics.arcade.moveToPointer(this.ship, 125);
             }
             this.weapon.fire();
         }
@@ -239,8 +254,10 @@ var GameState = {
         asteroids.forEachAlive(bulletCollision, this, this.weapon);
         this.physics.arcade.overlap(enemyWeapon, this.ship, callDamage, null, this);
 
-        game.physics.arcade.overlap(this.ship, crystals, collectCrystal, null, this);
-        game.physics.arcade.overlap(this.ship, metals, collectMetal, null, this);
+        if (this.ship.alive == true) {
+            this.physics.arcade.overlap(this.ship, crystals, collectCrystal, null, this);
+            this.physics.arcade.overlap(this.ship, metals, collectMetal, null, this);
+        }
 
         this.game.physics.arcade.collide(asteroids, asteroids);
     }
@@ -272,6 +289,9 @@ var callDamage = function(sprite, weapon) {
         case 'captainb':
             damage = ENEM_CAPTN_DAM;
             break;
+        case 'govtb':
+            damage = ENEM_GOVMT_DAM;
+            break;
     }
 
     if (sprite.health <= 0) {
@@ -279,6 +299,9 @@ var callDamage = function(sprite, weapon) {
         if (asteroids.children.indexOf(sprite) > -1) {
             sprite.spawnDrop();
             sprite.bust();
+        }
+        if (sprite.key == 'captain') {
+            sprite.escapePod();
         }
     } else {
         sprite.health -= damage;
@@ -756,20 +779,21 @@ Enemy.prototype.move = function() {
 
 Enemy.prototype.update = function() {
     
-    var distance = this.game.physics.arcade.distanceBetween(this.player, this);
-    
-    if (distance <= this.aggroRange && this.player.alive == true) {
-        if (distance >= this.minDist) {
-            this.game.physics.arcade.moveToXY(this, this.player.x, this.player.y, this.speed);
-        } else {
-            this.body.velocity.setTo(0);
+    if (this.key !== 'escape') {
+        var distance = this.game.physics.arcade.distanceBetween(this.player, this);
+        if (distance <= this.aggroRange && this.player.alive == true && this.alive == true) {
+            if (distance >= this.minDist) {
+                this.game.physics.arcade.moveToXY(this, this.player.x, this.player.y, this.speed);
+            } else {
+                this.body.velocity.setTo(0);
+            }
+            var angle = Math.atan2(this.player.y - this.y, this.player.x - this.x);
+            this.rotation = angle;
+            this.shoot();
         }
-        var angle = Math.atan2(this.player.y - this.y, this.player.x - this.x);
-        this.rotation = angle;
-        this.shoot();
-    } else {
-        this.move();
     }
+    
+    this.move();
     
 };
 
@@ -804,7 +828,22 @@ Enemy.prototype.shoot = function() {
                 this.shootNow = timeNow + 1000;
             }
             break;
+        case 'govt':
+            var timeNow = this.shootTimer.ms;
+            if (this.shootNow < timeNow) {
+                enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'govtb', this.player, 450, null);
+                enemyWeapon.add(enemyBullet);
+                this.shootNow = timeNow + 500;
+            }
+            break;
     }
+    
+};
+
+Enemy.prototype.escapePod = function() {
+    
+    var escapePod = new Enemy(this.game, this.x, this.y, 'escape', ESCAPE_POD_SPEED, ESCAPE_POD_HEALTH);
+    enemies.add(escapePod);
     
 };
 
