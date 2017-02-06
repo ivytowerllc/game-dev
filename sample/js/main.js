@@ -104,6 +104,7 @@ var GameState = {
 
         // Set score
         scoreText = game.add.text(0, 0, 'score: 0', { fontSize: '32px', fill: "#FFF" });
+       scoreText.fixedToCamera = true;
 
         // Add moon for reference point
         this.moon = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'moon');
