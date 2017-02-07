@@ -120,7 +120,7 @@ var GameState = {
         // Add moon for reference point
         this.moon = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'moon');
         this.moon.anchor.setTo(0.5);
-        this.moon.scale.setTo(0.5);
+        //this.moon.scale.setTo(0.5);
 
         // --- PLAYER SHIP
 
