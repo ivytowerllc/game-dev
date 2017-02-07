@@ -195,6 +195,7 @@ var GameState = {
         
         crystals = this.game.add.group();
         metals = this.game.add.group();
+        dusts = this.game.add.group();
 
         // --- ENEMY SPAWNS
 
@@ -508,7 +509,7 @@ Asteroid.prototype.spawnDrop = function(){
             }
         }
 
-        if(crystalDropRate <= 10){
+        if(crystalDropRate <= 9){
             for (var j = 0; j < crystalDropAmt; j++){
                 switch(whichCrystal){
                     case 1:
@@ -545,24 +546,34 @@ Asteroid.prototype.spawnDrop = function(){
                 crystals.add(crystal);
             }
         }
+
+        if(this.key == 'bigRedAst' || 'bigBlueAst' || 'bigWhiteAst' || 'bigGreyAst' || 'bigBrownAst'){
+            var randoDirect;
+            for (var z = 0; z < 50; z++){
+                dust = new Dust(this.game, this.x + z + (Math.ceil(Math.random() * 20)), this.y + z + (Math.ceil(Math.random() * 20)), 'dust');
+                randoDirect = Math.random() < 0.5 ? 1 : -1;
+                dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
+                dusts.add(dust);
+            }
+
+        } else if(this.key == 'medRedAst' || 'medBlueAst' || 'medWhiteAst' || 'medGreyAst' || 'medBrownAst'){
+            for (var zy = 0; zy < 25; zy++){
+                dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'dust');
+                randoDirect = Math.random() < 0.5 ? 1 : -1;
+                dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
+                dusts.add(dust);
+            }
+
+        } else if(this.key == 'smlRedAst' || 'smlBlueAst' || 'smlWhiteAst' || 'smlGreyAst' || 'smlBrownAst') {
+            for (var zyx = 0; zyx < 10; zyx++) {
+                dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'dust');
+                randoDirect = Math.random() < 0.5 ? 1 : -1;
+                dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
+                dusts.add(dust);
+            }
+
+        }
     }
-    
-    if(this.key == 'bigRedAst' || 'bigBlueAst' || 'bigWhiteAst' || 'bigGreyAst' || 'bigBrownAst'){
-        for (var z = 0; z < 100; z++){
-            dust = new Dust(this.game, this.x + ((z+1)*Math.ceil(Math.random() * 20)), this.y + ((z+1)*Math.ceil(Math.random() * 20)), 'dust');
-        }
-    } else if(this.key == 'medRedAst' || 'medBlueAst' || 'medWhiteAst' || 'medGreyAst' || 'medBrownAst'){
-        for (var zy = 0; zy < 50; zy++){
-            dust = new Dust(this.game, this.x + ((zy+1)*Math.ceil(Math.random() * 20)), this.y + ((zy+1)*Math.ceil(Math.random() * 20)), 'dust');
-        }
-    } else if(this.key == 'smlRedAst' || 'smlBlueAst' || 'smlWhiteAst' || 'smlGreyAst' || 'smlBrownAst') {
-        for (var zyx = 0; zyx < 25; zyx++) {
-            dust = new Dust(this.game, this.x + ((zyx + 1) * Math.ceil(Math.random() * 20)), this.y + ((zyx + 1) * Math.ceil(Math.random() * 20)), 'dust');
-        }
-    }
-    var randoDirect = Math.random() < 0.5 ? 1 : -1;
-    dust.body.velocity.setTo(10 * randoDirect, 10 * randoDirect);
-    dusts.add(dust);
 };
 
 Asteroid.prototype.bust = function(){
@@ -671,7 +682,7 @@ Asteroid.prototype.update = function(){
 var Dust = function(game, x, y, image){
      this.game = game;
 
-     Phaser.Sprite.call(this, x, y, image);
+     Phaser.Sprite.call(this, game, x, y, image);
 
      this.game.physics.arcade.enable(this);
      this.anchor.setTo(0.5);
