@@ -705,7 +705,7 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     
     // Time in which the enemies change direction
     this.recalcMovement = 0.5;
-    this.minimumRecalc = 3;
+    this.minimumRecalc = 3000;
     this.nextTurn = 0;
     
 };
@@ -716,7 +716,7 @@ Enemy.prototype.constructor = Enemy;
 // Random enemy movement around the level
 Enemy.prototype.move = function() {
     
-    if (Math.round(this.moveTimer.seconds) > this.nextTurn) {
+    if (Math.round(this.moveTimer.ms) > this.nextTurn) {
         
         var randomDistX = Math.round((Math.random() + 1) * this.minDistX + this.minDistX);
         var randomDistY = Math.round(Math.random() * this.maxDistY + this.minDistX);
@@ -729,7 +729,7 @@ Enemy.prototype.move = function() {
         
         if (this.moveTimer) {
             this.moveTimer.destroy();
-            this.moveTimer.seconds = 0;
+            this.moveTimer.ms = 0;
         }
         this.moveTimer = this.game.time.create(false);
         this.moveTimer.start();
@@ -790,10 +790,14 @@ Enemy.prototype.update = function() {
             var angle = Math.atan2(this.player.y - this.y, this.player.x - this.x);
             this.rotation = angle;
             this.shoot();
+        } else {
+            this.move();
         }
     }
     
-    this.move();
+    if (this.key == 'escape') {
+        this.move();
+    }
     
 };
 
