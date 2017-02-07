@@ -12,6 +12,8 @@ var enemyBullet;
 var enemyWeapon;
 var score = 0;
 var scoreText;
+var dusts;
+var dust;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -97,6 +99,7 @@ var GameState = {
         this.game.load.image('smlWhiteAst', 'assets/smlwhiteast.png');
         this.game.load.image('diamond', 'assets/diamond.png');
         this.game.load.image('star', 'assets/star.png');
+        this.game.load.image('dust', 'assets/dust.png');
     },
 
     create: function() {
@@ -258,6 +261,7 @@ var GameState = {
         if (this.ship.alive == true) {
             this.physics.arcade.overlap(this.ship, crystals, collectCrystal, null, this);
             this.physics.arcade.overlap(this.ship, metals, collectMetal, null, this);
+            this.physics.arcade.overlap(this.ship, dusts, collectDust, null, this);
         }
 
         this.game.physics.arcade.collide(asteroids, asteroids);
@@ -319,6 +323,12 @@ var collectCrystal = function(ship, crystal){
 var collectMetal = function(ship, metal){
 
     metal.kill();
+
+};
+
+var collectDust = function(ship, dust){
+
+    dust.kill();
 
 };
 
@@ -536,6 +546,23 @@ Asteroid.prototype.spawnDrop = function(){
             }
         }
     }
+    
+    if(this.key == 'bigRedAst' || 'bigBlueAst' || 'bigWhiteAst' || 'bigGreyAst' || 'bigBrownAst'){
+        for (var z = 0; z < 100; z++){
+            dust = new Dust(this.game, this.x + ((z+1)*Math.ceil(Math.random() * 20)), this.y + ((z+1)*Math.ceil(Math.random() * 20)), 'dust');
+        }
+    } else if(this.key == 'medRedAst' || 'medBlueAst' || 'medWhiteAst' || 'medGreyAst' || 'medBrownAst'){
+        for (var zy = 0; zy < 50; zy++){
+            dust = new Dust(this.game, this.x + ((zy+1)*Math.ceil(Math.random() * 20)), this.y + ((zy+1)*Math.ceil(Math.random() * 20)), 'dust');
+        }
+    } else if(this.key == 'smlRedAst' || 'smlBlueAst' || 'smlWhiteAst' || 'smlGreyAst' || 'smlBrownAst') {
+        for (var zyx = 0; zyx < 25; zyx++) {
+            dust = new Dust(this.game, this.x + ((zyx + 1) * Math.ceil(Math.random() * 20)), this.y + ((zyx + 1) * Math.ceil(Math.random() * 20)), 'dust');
+        }
+    }
+    var randoDirect = Math.random() < 0.5 ? 1 : -1;
+    dust.body.velocity.setTo(10 * randoDirect, 10 * randoDirect);
+    dusts.add(dust);
 };
 
 Asteroid.prototype.bust = function(){
@@ -637,6 +664,22 @@ Asteroid.prototype.update = function(){
     this.angle += 0.5;
 
 };
+
+// --- DUST
+
+// Dust template with physics and standard variables
+var Dust = function(game, x, y, image){
+     this.game = game;
+
+     Phaser.Sprite.call(this, x, y, image);
+
+     this.game.physics.arcade.enable(this);
+     this.anchor.setTo(0.5);
+     this.body.collideWorldBounds = true;
+};
+
+Dust.prototype = Object.create(Phaser.Sprite.prototype);
+Dust.prototype.constructor = Dust;
 
 // --- CRYSTALS
 
