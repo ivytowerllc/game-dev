@@ -41,7 +41,7 @@ var GameState = {
 
         // Establish bullet constants
         this.BULLET_SPEED = 600;
-        this.FIRE_RATE = 200;
+        this.FIRE_RATE = 150;
 
         // Establish enemy constants
         this.BASIC_SPEED = 150;
@@ -150,40 +150,41 @@ var GameState = {
         asteroids = this.game.add.group();
         for (var i = 0; i < 50; i++) {
             var whichShade = (Math.ceil(Math.random() * 5));
+            var randDirect = Math.random() < 0.5 ? 1 : -1;
             switch (whichShade) {
                 case 1:
                 var ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBlueAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
-                    ast.body.velocity.setTo(50, 50);
+                    ast.body.velocity.setTo(randDirect * 50, randDirect * 50);
                     asteroids.add(ast);
                     break;
                 case 2:
                     ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigRedAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
-                    ast.body.velocity.setTo(50, 50);
+                    ast.body.velocity.setTo(randDirect * 50, randDirect * 50);
                     asteroids.add(ast);
                     break;
                 case 3:
                     ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
-                    ast.body.velocity.setTo(50, 50);
+                    ast.body.velocity.setTo(randDirect * 50, randDirect * 50);
                     asteroids.add(ast);
                     break;
                 case 4:
                     ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigGreyAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
-                    ast.body.velocity.setTo(50, 50);
+                    ast.body.velocity.setTo(randDirect * 50, randDirect * 50);
                     asteroids.add(ast);
                     break;
                 case 5:
                     ast = new Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, 'bigBrownAst', BIG_AST_HEALTH)
                     ast.body.bounce.set(0.8);
                     ast.scale.setTo(0.75);
-                    ast.body.velocity.setTo(50, 50);
+                    ast.body.velocity.setTo(randDirect * 50, randDirect * 50);
                     asteroids.add(ast);
                     break;
             }
@@ -234,7 +235,7 @@ var GameState = {
         this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
         this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
 
-        if (this.game.physics.arcade.distanceToPointer(this.ship) > 25) {
+        if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
             this.game.physics.arcade.moveToPointer(this.ship, this.SHIP_SPEED);
         } else {
             this.ship.body.velocity.setTo(0);
@@ -497,7 +498,7 @@ Asteroid.prototype.spawnDrop = function(){
             }
         }
 
-        if(crystalDropRate <= 30){
+        if(crystalDropRate <= 10){
             for (var j = 0; j < crystalDropAmt; j++){
                 switch(whichCrystal){
                     case 1:
