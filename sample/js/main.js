@@ -14,6 +14,7 @@ var score = 0;
 var scoreText;
 var dusts;
 var dust;
+var collectedMetals = [];
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -30,7 +31,7 @@ var SML_AST_HEALTH = 10;
 // Escape pod variables
 var ESCAPE_POD_SPEED = 300;
 var ESCAPE_POD_HEALTH = 10;
-var DUST_COLLECTED=0;
+var DUST_COLLECTED = 0;
 
 // --- GAMESTATE
 
@@ -99,6 +100,14 @@ var GameState = {
         this.game.load.image('medWhiteAst', 'assets/medwhiteast.png');
         this.game.load.image('smlWhiteAst', 'assets/smlwhiteast.png');
         this.game.load.image('diamond', 'assets/diamond.png');
+        this.game.load.image('ruby', 'assets/diamond.png');
+        this.game.load.image('sunstone', 'assets/diamond.png');
+        this.game.load.image('topaz', 'assets/diamond.png');
+        this.game.load.image('emerald', 'assets/diamond.png');
+        this.game.load.image('sapphire', 'assets/diamond.png');
+        this.game.load.image('amethyst', 'assets/diamond.png');
+        this.game.load.image('obsidian', 'assets/diamond.png');
+        this.game.load.image('opal', 'assets/diamond.png');
         this.game.load.image('star', 'assets/star.png');
         this.game.load.image('smlDust', 'assets/smldust.png');
         this.game.load.image('medDust', 'assets/meddust.png');
@@ -134,7 +143,7 @@ var GameState = {
         this.ship.anchor.setTo(0.5);
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
-        this.ship.health = this.SHIP_HEALTH;
+        this.ship.health = this.SHIP_HEALTH; //The ship's health
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -228,7 +237,7 @@ var GameState = {
         }
 
         enemyWeapon = this.add.group();
-        scoreText = game.add.text(0, 0, 'SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED, { fontSize: '32px', fill: "#FFF" });
+        scoreText = game.add.text(0, 0, 'SCORE: ' + score + '   Dust: '+DUST_COLLECTED, { fontSize: '32px', fill: "#FFF" });
           scoreText.fixedToCamera = true;
         enemyWeapon.enableBody = true;
 
@@ -272,7 +281,7 @@ var GameState = {
         var key=game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         if(key.isDown && DUST_COLLECTED > 0){
               DUST_COLLECTED-=1;
-              scoreText.setText('SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED);
+              scoreText.setText('SCORE: ' + score + '   Dust: '+DUST_COLLECTED);
         	this.SHIP_SPEED=600;
 
         }else{this.SHIP_SPEED=300;}
@@ -325,7 +334,9 @@ var callDamage = function(sprite, weapon) {
     } else if(sprite.key == 'escape'){
         score += 50;
     }
-    scoreText.setText('SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED);
+        
+    scoreText.setText('SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
+        
         if (asteroids.children.indexOf(sprite) > -1) {
             sprite.spawnDrop();
             sprite.bust();
@@ -334,19 +345,53 @@ var callDamage = function(sprite, weapon) {
             sprite.escapePod();
         }
     } else {
-        sprite.health -= damage;
+        if(sprite.key == 'ship' && DUST_COLLECTED > 0){
+                DUST_COLLECTED -= damage;
+                scoreText.setText('SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
+            
+        } else {
+            sprite.health -= damage;
+        }
     }
-    
 };
 
 var collectCrystal = function(ship, crystal){
-
+    
+    if(crystal.key == 'diamond'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'ruby'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'sunstone'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'topaz'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'emerald'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'sapphire'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'amethyst'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'obsidian'){
+        console.log(crystal.key);
+        
+    } else if(crystal.key == 'opal'){
+        console.log(crystal.key);
+        
+    }
     crystal.kill();
 
 };
 
 var collectMetal = function(ship, metal){
-
+    
+    collectedMetals.push(metal);
     metal.kill();
 
 };
