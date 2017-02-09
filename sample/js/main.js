@@ -15,6 +15,7 @@ var scoreText;
 var dusts;
 var dust;
 var collectedMetals = [];
+var healthbar;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -112,6 +113,7 @@ var GameState = {
         this.game.load.image('smlDust', 'assets/smldust.png');
         this.game.load.image('medDust', 'assets/meddust.png');
         this.game.load.image('bigDust', 'assets/bigdust.png');
+        this.game.load.image('health','assets/bar.png');
     },
 
     create: function() {
@@ -127,6 +129,7 @@ var GameState = {
         bg.y = 0;
         bg.height = this.game.world.height;
         bg.width = this.game.world.width;
+
 
         // Set score
       
@@ -144,6 +147,11 @@ var GameState = {
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
         this.ship.health = this.SHIP_HEALTH; //The ship's health
+        //creates hip healthbar
+        healthbar=this.game.add.sprite(this.ship.centerX,this.ship.y-10,'health');
+         this.game.physics.enable(healthbar, Phaser.Physics.ARCADE);
+         healthbar.enableBody=true;
+
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -245,13 +253,15 @@ var GameState = {
 
     update: function() {
 
-        //scoreText.alignTo(this.game.camera.view, Phaser.LEFT_TOP);
-
-        // --- PLAYER MOVEMENT
-        //scoreText = game.add.text(0, 0, 'SCORE: 0'+'   H-FUEL:'+DUST_COLLECTED, { fontSize: '32px', fill: "#FFF" });
+       
           
         this.ship.rotation = this.game.physics.arcade.angleToPointer(this.ship);
         this.weapon.rotation = this.game.physics.arcade.angleToPointer(this.weapon);
+       
+
+        //Example using update health here*/
+        updateHealth(healthbar,this.ship);
+        
 
         if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
             this.game.physics.arcade.moveToPointer(this.ship, this.SHIP_SPEED);
@@ -296,6 +306,14 @@ var bulletCollision = function(sprite, weapon) {
     this.physics.arcade.overlap(weapon.bullets, sprite, callDamage, null, this);
 
 };
+
+//updates sprite healthbars
+
+var updateHealth=function(spritebar,sprite){
+ spritebar.centerX=sprite.centerX;
+ spritebar.centerY=sprite.centerY-30;
+
+}
 
 var callDamage = function(sprite, weapon) {
     
