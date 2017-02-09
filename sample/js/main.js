@@ -100,7 +100,9 @@ var GameState = {
         this.game.load.image('smlWhiteAst', 'assets/smlwhiteast.png');
         this.game.load.image('diamond', 'assets/diamond.png');
         this.game.load.image('star', 'assets/star.png');
-        this.game.load.image('dust', 'assets/dust.png');
+        this.game.load.image('smlDust', 'assets/smldust.png');
+        this.game.load.image('medDust', 'assets/meddust.png');
+        this.game.load.image('bigDust', 'assets/bigdust.png');
     },
 
     create: function() {
@@ -202,13 +204,13 @@ var GameState = {
         // Add basic enemies
         enemies = this.game.add.group();
         enemies.enableBody = true;
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 10; i++) {
             basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
             enemies.add(basic);
         }
 
         // Add bruiser class enemies
-        for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < 5; i++) {
             bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
             enemies.add(bruiser);
         }
@@ -220,13 +222,13 @@ var GameState = {
         }
         
         // Add government enemies
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 20; i++) {
             var govt = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
             enemies.add(govt);
         }
 
         enemyWeapon = this.add.group();
-        scoreText = game.add.text(0, 0, 'SCORE: 0'+'   H-FUEL:'+DUST_COLLECTED, { fontSize: '32px', fill: "#FFF" });
+        scoreText = game.add.text(0, 0, 'SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED, { fontSize: '32px', fill: "#FFF" });
           scoreText.fixedToCamera = true;
         enemyWeapon.enableBody = true;
 
@@ -268,9 +270,9 @@ var GameState = {
             this.physics.arcade.overlap(this.ship, dusts, collectDust, null, this);
         }
         var key=game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        if(key.isDown && DUST_COLLECTED>0){
+        if(key.isDown && DUST_COLLECTED > 0){
               DUST_COLLECTED-=1;
-              scoreText.setText('SCORE: 0'+'   H-FUEL:'+DUST_COLLECTED);
+              scoreText.setText('SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED);
         	this.SHIP_SPEED=600;
 
         }else{this.SHIP_SPEED=300;}
@@ -312,6 +314,18 @@ var callDamage = function(sprite, weapon) {
 
     if (sprite.health <= 0) {
         sprite.kill();
+        if(sprite.key == 'basic'){
+        score += 10;
+    } else if(sprite.key == 'bruiser'){
+        score += 20;
+    } else if(sprite.key == 'govt'){
+        score += 15;
+    } else if(sprite.key == 'captain'){
+        score += 30;
+    } else if(sprite.key == 'escape'){
+        score += 50;
+    }
+    scoreText.setText('SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED);
         if (asteroids.children.indexOf(sprite) > -1) {
             sprite.spawnDrop();
             sprite.bust();
@@ -322,7 +336,7 @@ var callDamage = function(sprite, weapon) {
     } else {
         sprite.health -= damage;
     }
-
+    
 };
 
 var collectCrystal = function(ship, crystal){
@@ -338,12 +352,22 @@ var collectMetal = function(ship, metal){
 };
 
 var collectDust = function(ship, dust){
+    
 	if(DUST_COLLECTED<300){
-    DUST_COLLECTED+=1;
-     scoreText.setText('SCORE: 0'+'   H-FUEL:'+DUST_COLLECTED);
-}
+        
+        if(dust.key == 'smlDust') {
+            DUST_COLLECTED+=5;
+        } else if(dust.key == "medDust"){
+            DUST_COLLECTED += 10;
+        }else if(dust.key == "bigDust"){ 
+            DUST_COLLECTED += 20;
+        }
+        
+        scoreText.setText('SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED);
+        
+    }
+    
     dust.kill();
-
 
 };
 
@@ -563,24 +587,24 @@ Asteroid.prototype.spawnDrop = function(){
 
         if(this.key == 'bigRedAst' || 'bigBlueAst' || 'bigWhiteAst' || 'bigGreyAst' || 'bigBrownAst'){
             var randoDirect;
-            for (var z = 0; z < 50; z++){
-                dust = new Dust(this.game, this.x + z + (Math.ceil(Math.random() * 20)), this.y + z + (Math.ceil(Math.random() * 20)), 'dust');
+            for (var z = 0; z < 5; z++){
+                dust = new Dust(this.game, this.x + z + (Math.ceil(Math.random() * 20)), this.y + z + (Math.ceil(Math.random() * 20)), 'bigDust');
                 randoDirect = Math.random() < 0.5 ? 1 : -1;
                 dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
                 dusts.add(dust);
             }
 
         } else if(this.key == 'medRedAst' || 'medBlueAst' || 'medWhiteAst' || 'medGreyAst' || 'medBrownAst'){
-            for (var zy = 0; zy < 25; zy++){
-                dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'dust');
+            for (var zy = 0; zy < 3; zy++){
+                dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'medDust');
                 randoDirect = Math.random() < 0.5 ? 1 : -1;
                 dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
                 dusts.add(dust);
             }
 
         } else if(this.key == 'smlRedAst' || 'smlBlueAst' || 'smlWhiteAst' || 'smlGreyAst' || 'smlBrownAst') {
-            for (var zyx = 0; zyx < 10; zyx++) {
-                dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'dust');
+            for (var zyx = 0; zyx < 1; zyx++) {
+                dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'smlDust');
                 randoDirect = Math.random() < 0.5 ? 1 : -1;
                 dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
                 dusts.add(dust);
