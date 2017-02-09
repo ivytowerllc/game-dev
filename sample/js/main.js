@@ -599,6 +599,7 @@ Asteroid.prototype.spawnDrop = function(){
                 dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'medDust');
                 randoDirect = Math.random() < 0.5 ? 1 : -1;
                 dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
+                dust.scale.setTo(0.75);
                 dusts.add(dust);
             }
 
@@ -607,6 +608,7 @@ Asteroid.prototype.spawnDrop = function(){
                 dust = new Dust(this.game, this.x + (Math.ceil(Math.random() * 20)), this.y + (Math.ceil(Math.random() * 20)), 'smlDust');
                 randoDirect = Math.random() < 0.5 ? 1 : -1;
                 dust.body.velocity.setTo(5 * randoDirect, 5 * randoDirect);
+                dust.scale.setTo(0.5);
                 dusts.add(dust);
             }
 
