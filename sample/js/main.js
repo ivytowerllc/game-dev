@@ -1,6 +1,6 @@
 /** Copyright Ivy Tower, LLC **/
 
-var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO);
+var game = new Phaser.Game(window.innerWidth, window.innerHeight, Phaser.AUTO, 'gameWindow');
 
 var healthbar;
 var asteroids;
@@ -128,6 +128,7 @@ var GameState = {
 
         // Set world bounds
         this.game.world.setBounds(0, 0, 5000, 5000);
+
 
         // Simple starry background for now
         this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'bg');
