@@ -869,7 +869,7 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.anchor.setTo(0.5);
     this.body.collideWorldBounds = true;
     this.body.drag.setTo(10, 10);
-    this.minDist = 600;
+    this.minMove = 600;
     
     // Create a timer
     this.moveTimer = this.game.time.create(false);
@@ -893,7 +893,7 @@ Enemy.prototype.move = function() {
     
     if (Math.round(this.moveTimer.ms) > this.nextTurn) {
         
-        var randomDist = Math.round((Math.random() + 1) * this.minDist);
+        var randomDist = Math.round((Math.random() + 1) * this.minMove);
         var moveX = this.x;
         var moveY = this.y;
         var moveLeft = false;
