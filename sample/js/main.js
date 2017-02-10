@@ -34,7 +34,7 @@ var SML_AST_SCALE = 0.25;
 
 // Escape pod variables
 var ESCAPE_POD_SPEED = 300;
-var ESCAPE_POD_HEALTH = 10;
+var ESCAPE_POD_HEALTH = 50;
 
 // Dust variables
 var DUST_COLLECTED = 0;
@@ -146,10 +146,9 @@ var GameState = {
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
         this.ship.health = this.SHIP_HEALTH;
-        // Creates hip healthbar
-        healthbar = this.game.add.sprite(this.ship.centerX, this.ship.y-10, 'health');
-        healthbar.enableBody = true;
-        this.game.physics.enable(healthbar, Phaser.Physics.ARCADE);
+        // Creates ship healthbar
+        healthbar = this.game.add.sprite(this.ship.centerX, this.ship.y + 10, 'health');
+        healthbar.scale.setTo(0.5);
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -253,7 +252,7 @@ var GameState = {
         var key = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         
         if (key.isDown && DUST_COLLECTED > 0) {
-            DUST_COLLECTED -= 2;
+            DUST_COLLECTED -= 1;
             scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             this.SHIP_SPEED = 600;
         } else {
@@ -351,7 +350,7 @@ var callDamage = function(sprite, weapon) {
 var updateHealth = function (spritebar, sprite) {
 
     spritebar.centerX = sprite.centerX;
-    spritebar.centerY = sprite.centerY - 30;
+    spritebar.centerY = sprite.centerY + 30;
 
 };
 
