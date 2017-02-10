@@ -274,7 +274,7 @@ var GameState = {
         // --- FIRE WEAPON
 
         // Fires with mouse click
-        if (this.game.input.activePointer.isDown) {
+        if (this.game.input.activePointer.isDown && this.ship.alive == true) {
             if (this.game.physics.arcade.distanceToPointer(this.ship) > 25) {
                 this.game.physics.arcade.moveToPointer(this.ship, 125);
             }
@@ -832,7 +832,6 @@ var Crystal = function(game, x, y, image) {
 Crystal.prototype = Object.create(Phaser.Sprite.prototype);
 Crystal.prototype.constructor = Crystal;
 
-
 // --- METALS
 
 // Metal template with physics and standard variables
@@ -870,8 +869,7 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.anchor.setTo(0.5);
     this.body.collideWorldBounds = true;
     this.body.drag.setTo(10, 10);
-    this.minDistX = 350;
-    this.maxDistY = 350;
+    this.minDist = 600;
     
     // Create a timer
     this.moveTimer = this.game.time.create(false);
@@ -881,7 +879,7 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.shootTimer.start();
     
     // Time in which the enemies change direction
-    this.recalcMovement = 0.5;
+    this.recalcMovement = 500;
     this.minimumRecalc = 3000;
     this.nextTurn = 0;
     
@@ -895,8 +893,7 @@ Enemy.prototype.move = function() {
     
     if (Math.round(this.moveTimer.ms) > this.nextTurn) {
         
-        var randomDistX = Math.round((Math.random() + 1) * this.minDistX + this.minDistX);
-        var randomDistY = Math.round(Math.random() * this.maxDistY + this.minDistX);
+        var randomDist = Math.round((Math.random() + 1) * this.minDist);
         var moveX = this.x;
         var moveY = this.y;
         var moveLeft = false;
@@ -919,30 +916,30 @@ Enemy.prototype.move = function() {
         }
         
         if (moveLeft && !this.moveRightNext) {
-            moveX -= randomDistX;
-            if (moveX < 0) {
-                moveX = this.body.width/2;
+            moveX -= randomDist;
+            if (moveX < 30) {
+                moveX = 30 + this.body.width/2;
                 this.moveRightNext = true;
             }
         } else {
-            moveX += randomDistX;
+            moveX += randomDist;
             this.moveRightNext = false;
-            if (moveX > this.game.world.width) {
-                moveX = this.game.world.width - this.body.width/2;
+            if (moveX > (this.game.world.width - 30)) {
+                moveX = (this.game.world.width - 30) - this.body.width/2;
             }
         }
             
         if (moveUp && !this.moveDownNext) {
-            moveY -= randomDistY;
-            if (moveY < 0) {
-                moveY = this.body.height/2;
+            moveY -= randomDist;
+            if (moveY < 30) {
+                moveY = 30 + this.body.height/2;
                 this.moveDownNext = true;
             }
         } else {
-            moveY += randomDistY;
+            moveY += randomDist;
             this.moveDownNext = false;
-            if (moveY > this.game.world.height) {
-                moveY = this.game.world.height - this.body.height/2;
+            if (moveY > (this.game.world.height - 30)) {
+                moveY = (this.game.world.height - 30) - this.body.height/2;
             }
         }
         
@@ -1049,4 +1046,3 @@ EnemyBullet.prototype.constructor = EnemyBullet;
 
 game.state.add('GameState', GameState);
 game.state.start('GameState');
-
