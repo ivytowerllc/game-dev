@@ -32,6 +32,8 @@ var SML_AST_HEALTH = 10;
 // Escape pod variables
 var ESCAPE_POD_SPEED = 300;
 var ESCAPE_POD_HEALTH = 10;
+
+// Dust variables
 var DUST_COLLECTED = 0;
 
 // --- GAMESTATE
@@ -289,12 +291,21 @@ var GameState = {
             this.physics.arcade.overlap(this.ship, dusts, collectDust, null, this);
         }
         var key=game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+	    
         if(key.isDown && DUST_COLLECTED > 0){
-              DUST_COLLECTED-=1;
-              scoreText.setText('SCORE: ' + score + '   Dust: '+DUST_COLLECTED);
-        	this.SHIP_SPEED=600;
+            
+            DUST_COLLECTED -= 2;
+            
+            if(DUST_COLLECTED < 0) DUST_COLLECTED = 0;
+            
+            scoreText.setText('SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
+            
+        	this.SHIP_SPEED = 600;
 
-        }else{this.SHIP_SPEED=300;}
+        } else {
+            
+            this.SHIP_SPEED = 300 - (DUST_COLLECTED / 2);
+        }
 
         this.game.physics.arcade.collide(asteroids, asteroids);
     }
@@ -363,9 +374,15 @@ var callDamage = function(sprite, weapon) {
             sprite.escapePod();
         }
     } else {
-        if(sprite.key == 'ship' && DUST_COLLECTED > 0){
-                DUST_COLLECTED -= damage;
-                scoreText.setText('SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
+         if(sprite.key == 'ship' && DUST_COLLECTED > 0){
+            
+            DUST_COLLECTED -= damage;
+            
+            if(DUST_COLLECTED < 0){
+                sprite.health -= (DUST_COLLECTED * -1);
+                DUST_COLLECTED = 0;
+            }
+            scoreText.setText( 'SCORE: ' + score + '   DUST: ' +DUST_COLLECTED);
             
         } else {
             sprite.health -= damage;
@@ -416,17 +433,19 @@ var collectMetal = function(ship, metal){
 
 var collectDust = function(ship, dust){
     
-	if(DUST_COLLECTED<300){
+	if(DUST_COLLECTED < 200){
         
         if(dust.key == 'smlDust') {
-            DUST_COLLECTED+=5;
+            DUST_COLLECTED += 1;
         } else if(dust.key == "medDust"){
-            DUST_COLLECTED += 10;
+            DUST_COLLECTED += 3;
         }else if(dust.key == "bigDust"){ 
-            DUST_COLLECTED += 20;
+            DUST_COLLECTED += 6;
         }
         
-        scoreText.setText('SCORE: ' + score + '   H-FUEL:'+DUST_COLLECTED);
+        if(DUST_COLLECTED > 200) DUST_COLLECTED = 200;
+        
+        scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
         
     }
     
