@@ -33,7 +33,7 @@ var MED_AST_SCALE = 0.5;
 var SML_AST_SCALE = 0.25;
 
 // Escape pod variables
-var ESCAPE_POD_SPEED = 300;
+var ESCAPE_POD_SPEED = 400;
 var ESCAPE_POD_HEALTH = 50;
 
 // Dust variables
@@ -114,7 +114,23 @@ var GameState = {
         this.game.load.image('amethyst', 'assets/diamond.png');
         this.game.load.image('obsidian', 'assets/diamond.png');
         this.game.load.image('opal', 'assets/diamond.png');
-        this.game.load.image('star', 'assets/star.png');
+        this.game.load.image('Li', 'assets/star.png');
+        this.game.load.image('Al', 'assets/star.png');
+        this.game.load.image('Ti', 'assets/star.png');
+        this.game.load.image('Cr', 'assets/star.png');
+        this.game.load.image('Fe', 'assets/star.png');
+        this.game.load.image('Co', 'assets/star.png');
+        this.game.load.image('Ni', 'assets/star.png');
+        this.game.load.image('Cu', 'assets/star.png');
+        this.game.load.image('Zn', 'assets/star.png');
+        this.game.load.image('Pd', 'assets/star.png');
+        this.game.load.image('Ag', 'assets/star.png');
+        this.game.load.image('Sn', 'assets/star.png');
+        this.game.load.image('Nd', 'assets/star.png');
+        this.game.load.image('W', 'assets/star.png');
+        this.game.load.image('Pt', 'assets/star.png');
+        this.game.load.image('Au', 'assets/star.png');
+        this.game.load.image('Hg', 'assets/star.png');
         this.game.load.image('smlDust', 'assets/smldust.png');
         this.game.load.image('medDust', 'assets/meddust.png');
         this.game.load.image('bigDust', 'assets/bigdust.png');
@@ -311,14 +327,19 @@ var callDamage = function(sprite, weapon) {
         sprite.kill();
         
         if (sprite.key == 'basic') {
+            sprite.dropLoot();
             score += 10;
         } else if (sprite.key == 'bruiser') {
+            sprite.dropLoot();
             score += 20;
         } else if (sprite.key == 'govt') {
+            sprite.dropLoot();
             score += 15;
         } else if (sprite.key == 'captain') {
+            sprite.dropLoot();
             score += 30;
         } else if (sprite.key == 'escape') {
+            sprite.dropLoot();
             score += 50;
         }
         
@@ -450,118 +471,125 @@ Asteroid.prototype.spawnDrop = function() {
     if (this.health < 1) {
         
         // Metal drops
-        if (metalDropRate < 10) {
+        if (metalDropRate < 5) {
             
             for (var h = 0; h < metalDropAmt; h++) {
-                metal = new Metal(this.game, this.x + (h * posVar), this.y + (h * posVar), 'star');
+                metal = new Metal(this.game, this.x + (h * posVar), this.y + (h * posVar), 'Hg');
+                metals.add(metal);
+            }
+            
+        } else if (metalDropRate < 10) {
+            
+            for (var k = 0; k < metalDropAmt; k++) {
+                metal = new Metal(this.game, this.x + (k * posVar), this.y + (k * posVar), 'Au');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 15) {
-            
-            for (var k = 0; k < metalDropAmt; k++) {
-                metal = new Metal(this.game, this.x + (k * posVar), this.y + (k * posVar), 'star');
+
+            for (var l = 0; l < metalDropAmt; l++) {
+                metal = new Metal(this.game, this.x + (l * posVar), this.y + (l * posVar), 'Pt');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 20) {
 
-            for (var l = 0; l < metalDropAmt; l++) {
-                metal = new Metal(this.game, this.x + (l * posVar), this.y + (l * posVar), 'star');
+            for (var m = 0; m < metalDropAmt; m++) {
+                metal = new Metal(this.game, this.x + (m * posVar), this.y + (m * posVar), 'W');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 25) {
 
-            for (var m = 0; m < metalDropAmt; m++) {
-                metal = new Metal(this.game, this.x + (m * posVar), this.y + (m * posVar), 'star');
+            for (var n = 0; n < metalDropAmt; n++) {
+                metal = new Metal(this.game, this.x + (n * posVar), this.y + (n * posVar), 'Nd');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 30) {
 
-            for (var n = 0; n < metalDropAmt; n++) {
-                metal = new Metal(this.game, this.x + (n * posVar), this.y + (n * posVar), 'star');
+            for (var o = 0; o < metalDropAmt; o++) {
+                metal = new Metal(this.game, this.x + (o * posVar), this.y + (o * posVar), 'Sn');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 40) {
 
-            for (var o = 0; o < metalDropAmt; o++) {
-                metal = new Metal(this.game, this.x + (o * posVar), this.y + (o * posVar), 'star');
+            for (var p = 0; p < metalDropAmt; p++) {
+                metal = new Metal(this.game, this.x + (p * posVar), this.y + (p * posVar), 'Ag');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 45) {
 
-            for (var p = 0; p < metalDropAmt; p++) {
-                metal = new Metal(this.game, this.x + (p * posVar), this.y + (p * posVar), 'star');
+            for (var i = 0; i < metalDropAmt; i++) {
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Pd');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 50) {
 
-            for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+            for (var q = 0; q < metalDropAmt; q++) {
+                metal = new Metal(this.game, this.x + (q * posVar), this.y + (q * posVar), 'Zn');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 55) {
 
-            for (var q = 0; q < metalDropAmt; q++) {
-                metal = new Metal(this.game, this.x + (q * posVar), this.y + (q * posVar), 'star');
+            for (var r = 0; r < metalDropAmt; r++) {
+                metal = new Metal(this.game, this.x + (r * posVar), this.y + (r * posVar), 'Cu');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 60) {
 
-            for (var r = 0; r < metalDropAmt; r++) {
-                metal = new Metal(this.game, this.x + (r * posVar), this.y + (r * posVar), 'star');
+            for (var i = 0; i < metalDropAmt; i++) {
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Ni');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 65) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Co');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 70) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Fe');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 75) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Cr');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 80) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Ti');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 85) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Al');
                 metals.add(metal);
             }
             
         } else if (metalDropRate < 90) {
 
             for (var i = 0; i < metalDropAmt; i++) {
-                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'star');
+                metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Li');
                 metals.add(metal);
             }
-            
+
         }
 
         // Crystal drops
@@ -926,6 +954,170 @@ Enemy.prototype.escapePod = function() {
     var escapePod = new Enemy(this.game, this.x, this.y, 'escape', ESCAPE_POD_SPEED, ESCAPE_POD_HEALTH);
     enemies.add(escapePod);
     
+};
+
+Enemy.prototype.dropLoot = function(){
+
+    var enemyDrop = Math.ceil(Math.random() * 4);
+    var posVar = Math.ceil(Math.random() * 20);
+    var dropAmt = Math.floor(Math.random() * 5);
+
+    switch(this.key){
+
+        case 'basic':
+            switch(enemyDrop){
+                case 1:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Li');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 2:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Al');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 3:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Ti');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 4:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Cr');
+                        metals.add(metal);
+                    }
+                    break;
+
+            }
+            break;
+
+        case 'bruiser':
+            switch(enemyDrop){
+                case 1:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Fe');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 2:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Co');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 3:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Ni');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 4:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Cu');
+                        metals.add(metal);
+                    }
+                    break;
+
+            }
+            break;
+
+        case 'govt':
+            switch(enemyDrop){
+                case 1:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Zn');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 2:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Pd');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 3:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Ag');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 4:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Sn');
+                        metals.add(metal);
+                    }
+                    break;
+
+            }
+            break;
+
+        case 'captain':
+            switch(enemyDrop){
+                case 1:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Nd');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 2:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'W');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 3:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Pt');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 4:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Au');
+                        metals.add(metal);
+                    }
+                    break;
+
+            }
+            break;
+
+        case 'escape':
+            switch(enemyDrop){
+                case 1:
+                case 2:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Au');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 3:
+                case 4:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Hg');
+                        metals.add(metal);
+                    }
+                    break;
+
+            }
+            break;
+    }
+
 };
 
 var EnemyBullet = function(game, x, y, type, player, speed, posVar) {
