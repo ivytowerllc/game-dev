@@ -763,7 +763,7 @@ Crystal.prototype.constructor = Crystal;
 // --- METALS
 
 // Metal template with physics and standard variables
-var Metal = function(game, x, y, type) {
+var Metal = function(game, x, y, type, value) {
 
     this.game = game;
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
@@ -775,6 +775,60 @@ var Metal = function(game, x, y, type) {
     this.body.collideWorldBounds = true;
     this.body.velocity.setTo(5 * plusOrMinus, 5 * plusOrMinus);
     this.body.bounce.set(0.5);
+
+    switch(this.key){
+        case 'Li':
+            this. value = 3;
+            break;
+        case 'Al':
+            this.value = 13;
+            break;
+        case 'Ti':
+            this.value = 22;
+            break;
+        case 'Cr':
+            this.value = 24;
+            break;
+        case 'Fe':
+            this.value = 26;
+            break;
+        case 'Co':
+            this.value = 27;
+            break;
+        case 'Ni':
+            this.value = 28;
+            break;
+        case 'Cu':
+            this.value = 29;
+            break;
+        case 'Zn':
+            this.value = 30;
+            break;
+        case 'Pd':
+            this.value = 46;
+            break;
+        case 'Ag':
+            this.value = 47;
+            break;
+        case 'Sn':
+            this.value = 50;
+            break;
+        case 'Nd':
+            this.value = 60;
+            break;
+        case 'W':
+            this.value = 74;
+            break;
+        case 'Pt':
+            this.value = 78;
+            break;
+        case 'Au':
+            this.value = 79;
+            break;
+        case 'Hg':
+            this.value = 80;
+            break;
+    }
 
 };
 
