@@ -137,7 +137,7 @@ var GameState = {
         this.game.load.image('medDust', 'assets/meddust.png');
         this.game.load.image('bigDust', 'assets/bigdust.png');
         this.game.load.image('health','assets/bar.png');
-        this.game.load.image('sheild','assets/bar2.png');
+        this.game.load.image('shield','assets/bar2.png');
         
     },
 
@@ -167,11 +167,11 @@ var GameState = {
         this.ship.health = this.SHIP_HEALTH;
         // Creates ship healthbar
         healthbar = this.game.add.sprite(this.ship.centerX, this.ship.y + 10, 'health');
-         //creates ship sheild
-        sheild=this.game.add.sprite(this.ship.centerX,this.ship.y-10,'sheild');
+         //creates ship shield
+        shield=this.game.add.sprite(this.ship.centerX,this.ship.y-10,'shield');
         //scaled down ultil we get a better sprite
-        sheild.scale.y=0.5;
-        sheild.scale.x=0.0;
+        shield.scale.y=0.5;
+        shield.scale.x=0.0;
         //healthbar.scale.setTo(0.5);
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
@@ -249,7 +249,7 @@ var GameState = {
         
         // Update health bar
         updatebar(healthbar, this.ship);
-        updatebar(sheild,this.ship);
+        updatebar(shield,this.ship);
 
         // --- PLAYER MOVEMENT
 
@@ -374,13 +374,13 @@ var callDamage = function(sprite, weapon) {
     } else {
     	//the sprite is not dead
         if (sprite.key == 'ship' && DUST_COLLECTED >0) {
-        	//the sprite is the player// the object hit is the player// the player has sheild
-              sheild.scale.x-=damage/1000+.0001;
+        	//the sprite is the player// the object hit is the player// the player has shield
+              shield.scale.x-=damage/1000+.0001;
               DUST_COLLECTED -= damage;
               scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             
         }else if(sprite.key == 'ship' && DUST_COLLECTED <=0){
-        	 // the sprite is the player //the object hit is the player// the player is out of sheild
+        	 // the sprite is the player //the object hit is the player// the player is out of shield
                 healthbar.scale.x-=damage/200;
                 sprite.health -= damage;
                 DUST_COLLECTED=0;
@@ -486,8 +486,7 @@ var Asteroid = function(game, x, y, type, scale, health) {
     this.anchor.setTo(0.5);
     this.body.collideWorldBounds = true;
     this.scale.setTo(scale);
-    this.healthbar = game.make.sprite(-10, -100, 'health');
-    this.addChild(this.healthbar);
+
 
 };
 
@@ -500,7 +499,6 @@ Asteroid.prototype.spawnDrop = function() {
     var metalDropRate = Math.ceil(Math.random() * 100);
     var metalDropAmt = Math.floor(Math.random() * 5);
     var crystalDropRate = Math.ceil(Math.random() * 100);
-    var crystalDropAmt = 1;
     
     if (this.health < 1) {
         
@@ -901,6 +899,10 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.recalcMovement = 500;
     this.minimumRecalc = 3000;
     this.nextTurn = 0;
+
+    this.healthbar = game.make.sprite(-10, -20, 'health');
+    this.healthbar.anchor.setTo(0.5);
+    this.addChild(this.healthbar);
     
 };
 
@@ -991,6 +993,8 @@ Enemy.prototype.update = function() {
     if (this.key == 'escape') {
         this.move();
     }
+
+
     
 };
 
