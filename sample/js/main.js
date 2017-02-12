@@ -137,6 +137,7 @@ var GameState = {
         this.game.load.image('medDust', 'assets/meddust.png');
         this.game.load.image('bigDust', 'assets/bigdust.png');
         this.game.load.image('health','assets/bar.png');
+        this.game.load.image('sheild','assets/bar2.png');
         
     },
 
@@ -166,7 +167,12 @@ var GameState = {
         this.ship.health = this.SHIP_HEALTH;
         // Creates ship healthbar
         healthbar = this.game.add.sprite(this.ship.centerX, this.ship.y + 10, 'health');
-        healthbar.scale.setTo(0.5);
+         //creates ship sheild
+        sheild=this.game.add.sprite(this.ship.centerX,this.ship.y-10,'sheild');
+        //scaled down ultil we get a better sprite
+        sheild.scale.y=0.5;
+        sheild.scale.x=0.0;
+        //healthbar.scale.setTo(0.5);
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
         // Camera follows ship
@@ -242,7 +248,8 @@ var GameState = {
         // scoreText.alignTo(this.game.camera.view, Phaser.LEFT_TOP);
         
         // Update health bar
-        updateHealth(healthbar, this.ship);
+        updatebar(healthbar, this.ship);
+        updatebar(sheild,this.ship);
 
         // --- PLAYER MOVEMENT
 
@@ -365,22 +372,36 @@ var callDamage = function(sprite, weapon) {
         }
         
     } else {
-        if (sprite.key == 'ship' && DUST_COLLECTED > 0) {
-            DUST_COLLECTED -= damage;
-            if (DUST_COLLECTED < 0) {
-                sprite.health -= (DUST_COLLECTED * -1);
-                DUST_COLLECTED = 0;
-            }
-            scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
+    	//the sprite is not dead
+        if (sprite.key == 'ship' && DUST_COLLECTED >0) {
+        	//the sprite is the player// the object hit is the player// the player has sheild
+              sheild.scale.x-=damage/1000+.0001;
+              DUST_COLLECTED -= damage;
+              scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             
+        }else if(sprite.key == 'ship' && DUST_COLLECTED <=0){
+        	 // the sprite is the player //the object hit is the player// the player is out of sheild
+                healthbar.scale.x-=damage/200;
+                sprite.health -= damage;
+                DUST_COLLECTED=0;
+                scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
         } else {
+        	//the sprite is an enemy//the object hit is an enemy
             sprite.health -= damage;
+
+
         }
     }
 };
 
-var updateHealth = function (spritebar, sprite) {
+var updatebar = function (spritebar, sprite) {
 
+   //updates the health-bar sprite  of sprites
+     if(sprite.health<=0){
+     	//sprite.kill();
+     	spritebar.kill();
+     }
+   
     spritebar.centerX = sprite.centerX;
     spritebar.centerY = sprite.centerY + 30;
 
@@ -465,6 +486,8 @@ var Asteroid = function(game, x, y, type, scale, health) {
     this.anchor.setTo(0.5);
     this.body.collideWorldBounds = true;
     this.scale.setTo(scale);
+    this.healthbar = game.make.sprite(-10, -100, 'health');
+    this.addChild(this.healthbar);
 
 };
 
