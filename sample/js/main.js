@@ -280,7 +280,7 @@ var GameState = {
 
             dustBurnt += 1;
             DUST_COLLECTED -= 1;
-
+            shield.scale.x-=.001
             if(dustBurnt > 10){
                 metal = new Metal(this.game, this.ship.previousPosition.x, this.ship.previousPosition.y, 'C', 6);
                 metals.add(metal);
@@ -451,14 +451,17 @@ var collectMetal = function(ship, metal) {
 
 var collectDust = function(ship, dust) {
 
-    if (DUST_COLLECTED < 200) {
+     if (DUST_COLLECTED < 200) {
         
         if (dust.key == 'smlDust') {
             DUST_COLLECTED += 1;
+            shield.scale.x+=.001
         } else if (dust.key == 'medDust') {
             DUST_COLLECTED += 3;
+            shield.scale.x+=.003
         } else if (dust.key == 'bigDust') { 
             DUST_COLLECTED += 6;
+            shield.scale.x+=.006;
         }
         
         if (DUST_COLLECTED > 200) {
