@@ -16,6 +16,7 @@ var enemyBullet;
 var enemyWeapon;
 var score = 0;
 var scoreText;
+var dustBurnt = 0;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -115,6 +116,7 @@ var GameState = {
         this.game.load.image('obsidian', 'assets/diamond.png');
         this.game.load.image('opal', 'assets/diamond.png');
         this.game.load.image('Li', 'assets/star.png');
+        this.game.load.image('C', 'assets/star.png');
         this.game.load.image('Al', 'assets/star.png');
         this.game.load.image('Ti', 'assets/star.png');
         this.game.load.image('Cr', 'assets/star.png');
@@ -265,10 +267,19 @@ var GameState = {
         
         // --- PLAYER BOOST
         
-        var key = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-        
-        if (key.isDown && DUST_COLLECTED > 0) {
+        var boost = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+
+        if (boost.isDown && DUST_COLLECTED > 0) {
+
+            dustBurnt += 1;
             DUST_COLLECTED -= 1;
+
+            if(dustBurnt > 10){
+                metal = new Metal(this.game, this.ship.previousPosition.x, this.ship.previousPosition.y, 'C', 6);
+                metals.add(metal);
+                dustBurnt = 0;
+            }
+
             scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             this.SHIP_SPEED = 600;
         } else {
