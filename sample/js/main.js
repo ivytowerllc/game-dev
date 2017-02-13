@@ -20,10 +20,10 @@ var dustBurnt = 0;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
-var ENEM_BASIC_DAM = 5;
-var ENEM_BRUIS_DAM = 20;
-var ENEM_CAPTN_DAM = 5; // For each of 3 shots
-var ENEM_GOVMT_DAM = 5;
+var ENEM_BASIC_DAM = 10;
+var ENEM_BRUIS_DAM = 30;
+var ENEM_CAPTN_DAM = 20; // For each of 3 shots
+var ENEM_GOVMT_DAM = 10;
 
 // Asteroids variables
 var BIG_AST_HEALTH = 30;
@@ -35,7 +35,7 @@ var SML_AST_SCALE = 0.25;
 
 // Escape pod variables
 var ESCAPE_POD_SPEED = 400;
-var ESCAPE_POD_HEALTH = 50;
+var ESCAPE_POD_HEALTH = 25;
 
 // Dust variables
 var DUST_COLLECTED = 0;
@@ -60,7 +60,7 @@ var GameState = {
         this.BRUISER_SPEED = 100;
         this.BRUISER_HEALTH = 300;
         this.CAPTAIN_SPEED = 230;
-        this.CAPTAIN_HEALTH = 100;
+        this.CAPTAIN_HEALTH = 150;
         this.GOVT_SPEED = 150;
         this.GOVT_HEALTH = 50;
 
@@ -165,16 +165,18 @@ var GameState = {
         this.ship.angle = -90; // Points the ship up
         this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
         this.ship.health = this.SHIP_HEALTH;
-        // Creates ship healthbar
+
+        // Creates ship health bar
         healthbar = this.game.add.sprite(this.ship.centerX, this.ship.y + 10, 'health');
+
          //creates ship shield
-        shield=this.game.add.sprite(this.ship.centerX,this.ship.y-10,'shield');
-        //scaled down ultil we get a better sprite
+        shield = this.game.add.sprite(this.ship.centerX,this.ship.y-10,'shield');
         shield.scale.y=0.5;
         shield.scale.x=0.0;
-        //healthbar.scale.setTo(0.5);
+
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
+
         // Camera follows ship
         this.game.camera.follow(this.ship);
 
@@ -281,8 +283,9 @@ var GameState = {
             dustBurnt += 1;
             DUST_COLLECTED -= 1;
             shield.scale.x-=.001
+            if(DUST_COLLECTED == 0) shield.scale.x = 0;
             if(dustBurnt > 10){
-                metal = new Metal(this.game, this.ship.previousPosition.x, this.ship.previousPosition.y, 'C', 6);
+                metal = new Metal(this.game, this.ship.previousPosition.x, this.ship.previousPosition.y, 'C');
                 metals.add(metal);
                 dustBurnt = 0;
             }
@@ -375,13 +378,17 @@ var callDamage = function(sprite, weapon) {
     	//the sprite is not dead
         if (sprite.key == 'ship' && DUST_COLLECTED >0) {
         	//the sprite is the player// the object hit is the player// the player has shield
-              shield.scale.x-=damage/1000+.0001;
+              shield.scale.x -= damage/1000+.0001;
               DUST_COLLECTED -= damage;
+              if (DUST_COLLECTED < 0) {
+                  DUST_COLLECTED = 0;
+                  shield.scale.x = 0;
+              }
               scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             
         }else if(sprite.key == 'ship' && DUST_COLLECTED <=0){
         	 // the sprite is the player //the object hit is the player// the player is out of shield
-                healthbar.scale.x-=damage/200;
+                healthbar.scale.x -= damage/200;
                 sprite.health -= damage;
                 DUST_COLLECTED=0;
                 scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
@@ -389,6 +396,19 @@ var callDamage = function(sprite, weapon) {
         	//the sprite is an enemy//the object hit is an enemy
             sprite.health -= damage;
 
+            /**if(sprite.key == 'basic' || 'govt'){
+                sprite.healthbar.scale.x -= damage/50;
+
+            } else if(sprite.key == 'bruiser'){
+                sprite.healthbar.scale.x -= damage/300;
+
+            } else if(sprite.key == 'captain'){
+                sprite.healthbar.scale.x -= damage/150;
+
+            } else if(sprite.key == 'escape'){
+                sprite.healthbar.scale.x -= damage/25;
+
+            }**/
 
         }
     }
@@ -455,13 +475,13 @@ var collectDust = function(ship, dust) {
         
         if (dust.key == 'smlDust') {
             DUST_COLLECTED += 1;
-            shield.scale.x+=.001
+            shield.scale.x += .001
         } else if (dust.key == 'medDust') {
             DUST_COLLECTED += 3;
-            shield.scale.x+=.003
+            shield.scale.x += .003
         } else if (dust.key == 'bigDust') { 
             DUST_COLLECTED += 6;
-            shield.scale.x+=.006;
+            shield.scale.x += .006;
         }
         
         if (DUST_COLLECTED > 200) {
@@ -798,10 +818,11 @@ Crystal.prototype.constructor = Crystal;
 // --- METALS
 
 // Metal template with physics and standard variables
-var Metal = function(game, x, y, type, value) {
+var Metal = function(game, x, y, type) {
 
     this.game = game;
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+    var value;
 
     Phaser.Sprite.call(this, game, x, y, type);
 
@@ -813,7 +834,10 @@ var Metal = function(game, x, y, type, value) {
 
     switch(this.key){
         case 'Li':
-            this. value = 3;
+            this.value = 3;
+            break;
+        case 'C':
+            this.value = 6;
             break;
         case 'Al':
             this.value = 13;
@@ -870,6 +894,34 @@ var Metal = function(game, x, y, type, value) {
 Metal.prototype = Object.create(Phaser.Sprite.prototype);
 Metal.prototype.constructor = Metal;
 
+// --- ANOMALIES
+
+// Anomaly template with physics and standard variables
+var Anomaly = function(game, x, y, type){
+
+    this.game = game;
+    var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
+
+    Phaser.Sprite.call(this, game, x, y, type);
+
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.collideWorldBounds = true;
+    this.body.velocity.setTo(5 * plusOrMinus, 5 * plusOrMinus);
+    this.body.bounce.set(0.5);
+};
+
+Anomaly.prototype = Object.create(Phaser.Sprite.prototype);
+Anomaly.prototype.constructor = Anomaly;
+
+Anomaly.prototype.effect = function(){
+
+    switch(this.key){
+
+        
+    }
+};
+
 // --- ENEMIES
 
 // Enemy template with physics and standard variables
@@ -906,6 +958,20 @@ var Enemy = function(game, x, y, type, speed, health, player) {
     this.healthbar = game.make.sprite(-10, -20, 'health');
     this.healthbar.anchor.setTo(0.5);
     this.addChild(this.healthbar);
+
+    /**if(this.key == 'basic' || 'govt'){
+        this.healthbar.scale.x = 50;
+
+    } else if(this.key == 'bruiser'){
+        this.healthbar.scale.x = 300;
+
+    } else if(this.key == 'captain'){
+        this.healthbar.scale.x = 150;
+
+    } else if(this.key == 'escape'){
+        this.healthbar.scale.x = 25;
+
+    }**/
     
 };
 
@@ -1009,7 +1075,7 @@ Enemy.prototype.shoot = function() {
             if (this.shootNow < timeNow) {
                 enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'basicb', this.player, 450, null);
                 enemyWeapon.add(enemyBullet);
-                this.shootNow = timeNow + 1000;
+                this.shootNow = timeNow + 500;
             }
             break;
         case 'bruiser':
@@ -1037,7 +1103,7 @@ Enemy.prototype.shoot = function() {
             if (this.shootNow < timeNow) {
                 enemyBullet = new EnemyBullet(this.game, this.x, this.y, 'govtb', this.player, 450, null);
                 enemyWeapon.add(enemyBullet);
-                this.shootNow = timeNow + 500;
+                this.shootNow = timeNow + 250;
             }
             break;
     }
