@@ -392,23 +392,35 @@ var callDamage = function(sprite, weapon) {
                 sprite.health -= damage;
                 DUST_COLLECTED=0;
                 scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
-        } else {
+        } lse if(sprite.key == 'captain'){
+        	 // the sprite is the player //the object hit is the player// the player is out of shield
+                sprite.healthbar.scale.x-=damage/this.CAPTAIN_HEALTH;
+                sprite.health -= damage;
+              
+        } else if(sprite.key == 'bruiser'){
+        	 // the sprite is the player //the object hit is the player// the player is out of shield
+                sprite.healthbar.scale.x-=damage/this.BRUISER_HEALTH;
+                sprite.health -= damage;
+               
+        }else if(sprite.key == 'escape'){
+        	 // the sprite is the player //the object hit is the player// the player is out of shield
+                sprite.healthbar.scale.x-=damage/this.ESCAPE_POD_HEALTH;
+                sprite.health -= damage;
+               
+        }else if(sprite.key == 'govt' ){
+        	 // the sprite is the player //the object hit is the player// the player is out of shield
+                sprite.healthbar.scale.x-=damage/this.GOVT_HEALTH;
+                sprite.health -= damage;
+               
+        }else if(sprite.key == 'basicb' ){
+        	 // the sprite is the player //the object hit is the player// the player is out of shield
+                sprite.healthbar.scale.x-=damage/this.BASIC_HEALTH;
+                sprite.health -= damage;
+               
+        }  else {
         	//the sprite is an enemy//the object hit is an enemy
             sprite.health -= damage;
 
-            /**if(sprite.key == 'basic' || 'govt'){
-                sprite.healthbar.scale.x -= damage/50;
-
-            } else if(sprite.key == 'bruiser'){
-                sprite.healthbar.scale.x -= damage/300;
-
-            } else if(sprite.key == 'captain'){
-                sprite.healthbar.scale.x -= damage/150;
-
-            } else if(sprite.key == 'escape'){
-                sprite.healthbar.scale.x -= damage/25;
-
-            }**/
 
         }
     }
