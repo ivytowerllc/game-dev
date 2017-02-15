@@ -392,7 +392,7 @@ var callDamage = function(sprite, weapon) {
                 sprite.health -= damage;
                 DUST_COLLECTED=0;
                 scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
-        } lse if(sprite.key == 'captain'){
+        } else if(sprite.key == 'captain'){
         	 // the sprite is the player //the object hit is the player// the player is out of shield
                 sprite.healthbar.scale.x-=damage/this.CAPTAIN_HEALTH;
                 sprite.health -= damage;
@@ -418,7 +418,7 @@ var callDamage = function(sprite, weapon) {
                 sprite.health -= damage;
                
         }  else {
-        	//the sprite is an enemy//the object hit is an enemy
+        	//the sprite is an asteroid
             sprite.health -= damage;
 
 
