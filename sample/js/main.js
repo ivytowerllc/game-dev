@@ -17,6 +17,11 @@ var enemyWeapon;
 var score = 0;
 var scoreText;
 var dustBurnt = 0;
+var anomaly;
+var anomalies;
+var smlAst;
+var medAst;
+var enemiesAlive;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -63,9 +68,6 @@ var GameState = {
         this.CAPTAIN_HEALTH = 150;
         this.GOVT_SPEED = 150;
         this.GOVT_HEALTH = 50;
-
-        // Establish pick-up constants
-        this.ANOMALY_SPEED = 1;
 
         // Initiate physics
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -138,6 +140,14 @@ var GameState = {
         this.game.load.image('bigDust', 'assets/bigdust.png');
         this.game.load.image('health','assets/bar.png');
         this.game.load.image('shield','assets/bar2.png');
+        this.game.load.image('drone','assets/anomaly.png');
+        this.game.load.image('magnet','assets/anomaly.png');
+        this.game.load.image('blackhole','assets/anomaly.png');
+        this.game.load.image('transmute','assets/anomaly.png');
+        this.game.load.image('infinity','assets/anomaly.png');
+        this.game.load.image('invisible','assets/anomaly.png');
+        this.game.load.image('bomb','assets/anomaly.png');
+        this.game.load.image('warp','assets/anomaly.png');
         
     },
 
@@ -150,7 +160,7 @@ var GameState = {
 
 
         // Simple starry background for now
-        this.background = this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'bg');
+        this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'bg');
 
         // Add moon for reference point
         this.moon = this.game.add.sprite(this.game.world.centerX, this.game.world.centerY, 'moon');
@@ -170,9 +180,9 @@ var GameState = {
         healthbar = this.game.add.sprite(this.ship.centerX, this.ship.y + 10, 'health');
 
          //creates ship shield
-        shield = this.game.add.sprite(this.ship.centerX,this.ship.y-10,'shield');
-        shield.scale.y=0.5;
-        shield.scale.x=0.0;
+        this.shield = this.game.add.sprite(this.ship.centerX,this.ship.y-10,'shield');
+        this.shield.scale.y=0.5;
+        this.shield.scale.x=0.0;
 
         // Collide with world boundaries
         this.ship.body.collideWorldBounds = true;
@@ -206,33 +216,39 @@ var GameState = {
         crystals = this.game.add.group();
         metals = this.game.add.group();
         dusts = this.game.add.group();
+        anomalies = this.game.add.group();
 
         // --- ENEMY SPAWNS
+        enemiesAlive = 0;
 
         // Add basic enemies
         enemies = this.game.add.group();
         enemies.enableBody = true;
-        for (var i = 0; i < 10; i++) {
+        for (var i = 0; i < 1; i++) {
             var basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
             enemies.add(basic);
+            enemiesAlive ++;
         }
 
         // Add bruiser class enemies
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 1; i++) {
             var bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
             enemies.add(bruiser);
+            enemiesAlive++;
         }
 
         // Add captain class enemies
         for (var m = 0; m < 1; m++) {
             var captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.ship);
             enemies.add(captain);
+            enemiesAlive++;
         }
         
         // Add government enemies
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < 1; i++) {
             var govt = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
             enemies.add(govt);
+            enemiesAlive++;
         }
 
         enemyWeapon = this.add.group();
@@ -243,6 +259,8 @@ var GameState = {
         scoreText = game.add.text(32, 32, 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED, { fontSize: '32px', fill: "#FFF" });
         scoreText.fixedToCamera = true;
 
+        this.game.time.events.add(Phaser.Timer.SECOND * 15, newAnomaly, this);
+
     },
 
     update: function() {
@@ -251,7 +269,7 @@ var GameState = {
         
         // Update health bar
         updatebar(healthbar, this.ship);
-        updatebar(shield,this.ship);
+        updatebar(this.shield,this.ship);
 
         // --- PLAYER MOVEMENT
 
@@ -282,13 +300,14 @@ var GameState = {
 
             dustBurnt += 1;
             DUST_COLLECTED -= 1;
-            shield.scale.x-=.001
-            if(DUST_COLLECTED == 0) shield.scale.x = 0;
-            if(dustBurnt > 10){
+            if(dustBurnt >= 10){
                 metal = new Metal(this.game, this.ship.previousPosition.x, this.ship.previousPosition.y, 'C');
                 metals.add(metal);
                 dustBurnt = 0;
             }
+            this.shield.scale.x-=.001;
+            if(DUST_COLLECTED == 0) this.shield.scale.x = 0;
+
 
             scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             this.SHIP_SPEED = 600;
@@ -306,11 +325,16 @@ var GameState = {
             this.physics.arcade.overlap(this.ship, crystals, collectCrystal, null, this);
             this.physics.arcade.overlap(this.ship, metals, collectMetal, null, this);
             this.physics.arcade.overlap(this.ship, dusts, collectDust, null, this);
+            this.physics.arcade.overlap(this.ship, anomalies, collectAnomaly, null, this);
+            this.physics.arcade.overlap(this.ship, anomalies, anomalyEffect, null, this);
         }
 
         this.game.physics.arcade.collide(asteroids, asteroids);
-        
+
+
     }
+
+
 
 };
 
@@ -326,7 +350,7 @@ var callDamage = function(sprite, weapon) {
     bullet.kill();
     
     var damage;
-    switch (weapon.key) {
+    switch (bullet.key) {
         case 'bullet':
             damage = SHIP_BASIC_DAM;
             break;
@@ -348,18 +372,23 @@ var callDamage = function(sprite, weapon) {
         sprite.kill();
         
         if (sprite.key == 'basic') {
+            enemiesAlive--;
             sprite.dropLoot();
             score += 10;
         } else if (sprite.key == 'bruiser') {
+            enemiesAlive--;
             sprite.dropLoot();
             score += 20;
         } else if (sprite.key == 'govt') {
+            enemiesAlive--;
             sprite.dropLoot();
             score += 15;
         } else if (sprite.key == 'captain') {
+            enemiesAlive--;
             sprite.dropLoot();
             score += 30;
         } else if (sprite.key == 'escape') {
+            enemiesAlive--;
             sprite.dropLoot();
             score += 50;
         }
@@ -378,11 +407,11 @@ var callDamage = function(sprite, weapon) {
     	//the sprite is not dead
         if (sprite.key == 'ship' && DUST_COLLECTED >0) {
         	//the sprite is the player// the object hit is the player// the player has shield
-              shield.scale.x -= damage/1000+.0001;
+              this.shield.scale.x -= damage/1000+.0001;
               DUST_COLLECTED -= damage;
               if (DUST_COLLECTED < 0) {
                   DUST_COLLECTED = 0;
-                  shield.scale.x = 0;
+                  this.shield.scale.x = 0;
               }
               scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
             
@@ -487,13 +516,13 @@ var collectDust = function(ship, dust) {
         
         if (dust.key == 'smlDust') {
             DUST_COLLECTED += 1;
-            shield.scale.x += .001
+            this.shield.scale.x += .001
         } else if (dust.key == 'medDust') {
             DUST_COLLECTED += 3;
-            shield.scale.x += .003
+            this.shield.scale.x += .003
         } else if (dust.key == 'bigDust') { 
             DUST_COLLECTED += 6;
-            shield.scale.x += .006;
+            this.shield.scale.x += .006;
         }
         
         if (DUST_COLLECTED > 200) {
@@ -504,6 +533,40 @@ var collectDust = function(ship, dust) {
     }
     
     dust.kill();
+
+};
+
+var collectAnomaly = function(ship, anomaly){
+
+    switch(anomaly.key){
+
+        case 'infinity':
+            console.log(anomaly.key);
+            break;
+        case 'magnet':
+            console.log(anomaly.key);
+            break;
+        case 'blackhole':
+            console.log(anomaly.key);
+            break;
+        case 'transmute':
+            console.log(anomaly.key);
+            break;
+        case 'drone':
+            console.log(anomaly.key);
+            break;
+        case 'invisible':
+            console.log(anomaly.key);
+            break;
+        case 'bomb':
+            console.log(anomaly.key);
+            break;
+        case 'warp':
+            console.log(anomaly.key);
+            break;
+    }
+
+    anomaly.kill();
 
 };
 
@@ -709,70 +772,70 @@ Asteroid.prototype.bust = function() {
     
     if (this.key == 'bigBlueAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medBlueAst', MED_AST_SCALE, MED_AST_HEALTH);
+            medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medBlueAst', MED_AST_SCALE, MED_AST_HEALTH);
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
             asteroids.add(medAst);
         }
     } else if (this.key == 'medBlueAst') {
         for (var b = 0; b < (Math.ceil(Math.random() * 3)); b++) {
-            var smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlBlueAst', SML_AST_SCALE, SML_AST_HEALTH);
+            smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlBlueAst', SML_AST_SCALE, SML_AST_HEALTH);
             smlAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
             asteroids.add(smlAst);
         }
     } else if (this.key == 'bigGreyAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medGreyAst', MED_AST_SCALE, MED_AST_HEALTH);
+            medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medGreyAst', MED_AST_SCALE, MED_AST_HEALTH);
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
             asteroids.add(medAst);
         }
     } else if (this.key == 'medGreyAst') {
         for (var b = 0; b < (Math.ceil(Math.random() * 3)); b++) {
-            var smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlGreyAst', SML_AST_SCALE, SML_AST_HEALTH);
+            smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlGreyAst', SML_AST_SCALE, SML_AST_HEALTH);
             smlAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
             asteroids.add(smlAst);
         }
     } else if (this.key == 'bigBrownAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medBrownAst', MED_AST_SCALE, MED_AST_HEALTH);
+            medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medBrownAst', MED_AST_SCALE, MED_AST_HEALTH);
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
             asteroids.add(medAst);
         }
     } else if (this.key == 'medBrownAst') {
         for (var b = 0; b < (Math.ceil(Math.random() * 3)); b++) {
-            var smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlBrownAst', SML_AST_SCALE, SML_AST_HEALTH);
+            smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlBrownAst', SML_AST_SCALE, SML_AST_HEALTH);
             smlAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
             asteroids.add(smlAst);
         }
     } else if (this.key == 'bigRedAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medRedAst', MED_AST_SCALE, MED_AST_HEALTH);
+            medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medRedAst', MED_AST_SCALE, MED_AST_HEALTH);
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
             asteroids.add(medAst);
         }
     } else if (this.key == 'medRedAst') {
         for (var b = 0; b < (Math.ceil(Math.random() * 3)); b++) {
-            var smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlRedAst', SML_AST_SCALE, SML_AST_HEALTH);
+            smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlRedAst', SML_AST_SCALE, SML_AST_HEALTH);
             smlAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
             asteroids.add(smlAst);
         }
     } else if (this.key == 'bigWhiteAst') {
         for (var a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            var medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medWhiteAst', MED_AST_SCALE, MED_AST_HEALTH);
+            medAst = new Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medWhiteAst', MED_AST_SCALE, MED_AST_HEALTH);
             medAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             medAst.body.bounce.set(0.5);
             asteroids.add(medAst);
         }
     } else if (this.key == 'medWhiteAst') {
         for (var b = 0; b < (Math.ceil(Math.random() * 3)); b++) {
-            var smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlWhiteAst', SML_AST_SCALE, SML_AST_HEALTH);
+            smlAst = new Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlWhiteAst', SML_AST_SCALE, SML_AST_HEALTH);
             smlAst.body.velocity.setTo(75 * plusOrMinus, 75 * plusOrMinus);
             smlAst.body.bounce.set(0.5);
             asteroids.add(smlAst);
@@ -834,7 +897,6 @@ var Metal = function(game, x, y, type) {
 
     this.game = game;
     var plusOrMinus = Math.random() < 0.5 ? -1 : 1;
-    var value;
 
     Phaser.Sprite.call(this, game, x, y, type);
 
@@ -921,17 +983,67 @@ var Anomaly = function(game, x, y, type){
     this.body.collideWorldBounds = true;
     this.body.velocity.setTo(5 * plusOrMinus, 5 * plusOrMinus);
     this.body.bounce.set(0.5);
+
+    //game.time.add(10000, this.kill, this);
 };
 
 Anomaly.prototype = Object.create(Phaser.Sprite.prototype);
 Anomaly.prototype.constructor = Anomaly;
 
-Anomaly.prototype.effect = function(){
+var anomalyEffect = function(ship, anomaly){
 
-    switch(this.key){
+    switch(anomaly.key){
 
-        
+        case 'infinity':
+            console.log(anomaly.key + " infinity effect ");
+            break;
+        case 'magnet':
+            console.log(anomaly.key + " mag effect ");
+            break;
+        case 'blackhole':
+            console.log(anomaly.key + " blk effect ");
+            break;
+        case 'transmute':
+            console.log(anomaly.key + " trans effect ");
+            break;
+        case 'drone':
+            console.log(anomaly.key + " drone effect ");
+            break;
+        case 'invisible':
+            console.log(anomaly.key + " invisible effect ");
+            break;
+        case 'bomb':
+            console.log(anomaly.key + " bomb effect ");
+            break;
+        case 'warp':
+            console.log(anomaly.key + " warp effect ");
+            break;
     }
+};
+
+
+var newAnomaly = function(){
+
+    var anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][Math.floor(Math.random() * 8)];
+    anomaly = new Anomaly(this.game, this.game.world.randomX, this.game.world.randomY, anomalyKey);
+    console.log('New anomaly at ' + anomaly.x + ", " + anomaly.y);
+    anomalies.add(anomaly);
+    anomaly.spawn();
+    game.time.events.add(10000, destroy, this);
+};
+
+Anomaly.prototype.spawn = function(){
+
+    game.time.events.add(15000, newAnomaly, this);
+
+
+};
+
+var destroy = function(){
+
+    anomaly.kill();
+    console.log("It's dead!");
+
 };
 
 // --- ENEMIES
@@ -1291,6 +1403,37 @@ Enemy.prototype.dropLoot = function(){
             break;
     }
 
+};
+
+var newEnemies = function(){
+
+    if(enemiesAlive < 1){
+
+        for (var i = 0; i < 10; i++) {
+            var basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
+            enemies.add(basic);
+            enemiesAlive ++;
+        }
+
+        for (var i = 0; i < 3; i++) {
+            var bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
+            enemies.add(bruiser);
+            enemiesAlive++;
+        }
+
+        for (var m = 0; m < 1; m++) {
+            var captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.ship);
+            enemies.add(captain);
+            enemiesAlive++;
+        }
+
+        for (var i = 0; i < 5; i++) {
+            var govt = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
+            enemies.add(govt);
+            enemiesAlive++;
+        }
+
+    }
 };
 
 var EnemyBullet = function(game, x, y, type, player, speed, posVar) {
