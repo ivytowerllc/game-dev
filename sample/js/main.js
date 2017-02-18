@@ -412,7 +412,7 @@ var callDamage = function(sprite, weapon) {
                 sprite.healthbar.scale.x-=damage/this.GOVT_HEALTH;
                 sprite.health -= damage;
                
-        }else if(sprite.key == 'basicb' ){
+        }else if(sprite.key == 'basic' ){
         	 // the sprite is the player //the object hit is the player// the player is out of shield
                 sprite.healthbar.scale.x-=damage/this.BASIC_HEALTH;
                 sprite.health -= damage;
