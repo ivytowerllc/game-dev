@@ -22,6 +22,7 @@ var anomalies;
 var smlAst;
 var medAst;
 var enemiesAlive;
+var comet;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -41,6 +42,8 @@ var SML_AST_SCALE = 0.25;
 // Escape pod variables
 var ESCAPE_POD_SPEED = 400;
 var ESCAPE_POD_HEALTH = 25;
+var COMET_HEALTH=100;
+var COMET_SPEED=250;
 
 // Dust variables
 var DUST_COLLECTED = 0;
@@ -148,6 +151,9 @@ var GameState = {
         this.game.load.image('invisible','assets/anomaly.png');
         this.game.load.image('bomb','assets/anomaly.png');
         this.game.load.image('warp','assets/anomaly.png');
+        this.game.load.image('comet','assets/comet.png');
+        this.game.load.image('particle1','assets/p1.png');
+        this.game.load.image('particle2','assets/p2.png');
         
     },
 
@@ -203,6 +209,10 @@ var GameState = {
         // --- ASTEROID SPAWNS
 
         asteroids = this.game.add.group();
+         comet=this.game.add.group();
+        var cometone=new Comet(this.game,this.ship.x,this.ship.y,'comet',COMET_HEALTH);
+        //var comet2=this.game.add.sprite(this.ship.x,this.ship.y,'comet');
+        comet.add(cometone);
         
         for (var i = 0; i < 50; i++) {
             var randDirect = Math.random() < 0.5 ? 1 : -1;
@@ -211,6 +221,7 @@ var GameState = {
             ast.body.bounce.set(0.8);
             ast.body.velocity.setTo(randDirect * 50, randDirect * 50);
             asteroids.add(ast);
+
         }
         
         crystals = this.game.add.group();
@@ -260,6 +271,7 @@ var GameState = {
         scoreText.fixedToCamera = true;
 
         this.game.time.events.add(Phaser.Timer.SECOND * 15, newAnomaly, this);
+        this.game.time.events.add(Phaser.Timer.SECOND * 15, newComet, this);
 
     },
 
@@ -319,6 +331,8 @@ var GameState = {
 
         enemies.forEachAlive(bulletCollision, this, this.weapon);
         asteroids.forEachAlive(bulletCollision, this, this.weapon);
+        comet.forEachAlive(bulletCollision,this,this.weapon);
+        comet.forEachAlive(this.killcomet);
         this.physics.arcade.overlap(enemyWeapon, this.ship, callDamage, null, this);
         
         if (this.ship.alive == true) {
@@ -391,6 +405,9 @@ var callDamage = function(sprite, weapon) {
             enemiesAlive--;
             sprite.dropLoot();
             score += 50;
+        }else if(sprite.key=='comet'){
+
+           sprite.dropLoot();
         }
         
         scoreText.setText( 'SCORE: ' + score + '   DUST: ' + DUST_COLLECTED);
@@ -441,6 +458,10 @@ var callDamage = function(sprite, weapon) {
                 sprite.healthbar.scale.x-=damage/this.GOVT_HEALTH;
                 sprite.health -= damage;
                
+        }else if(sprite.key=='comet'){
+             sprite.healthbar.scale.x-=damage/COMET_HEALTH;
+             sprite.health -= damage;
+
         }else if(sprite.key == 'basic' ){
         	 // the sprite is the player //the object hit is the player// the player is out of shield
                 sprite.healthbar.scale.x-=damage/this.BASIC_HEALTH;
@@ -590,6 +611,7 @@ var Asteroid = function(game, x, y, type, scale, health) {
 
 Asteroid.prototype = Object.create(Phaser.Sprite.prototype);
 Asteroid.prototype.constructor = Asteroid;
+
 
 Asteroid.prototype.spawnDrop = function() {
 
@@ -1244,6 +1266,7 @@ Enemy.prototype.escapePod = function() {
 Enemy.prototype.dropLoot = function(){
 
     var enemyDrop = Math.ceil(Math.random() * 4);
+
     var posVar = Math.ceil(Math.random() * 20);
     var dropAmt = Math.floor(Math.random() * 5);
 
@@ -1452,6 +1475,131 @@ var EnemyBullet = function(game, x, y, type, player, speed, posVar) {
 
 EnemyBullet.prototype = Object.create(Phaser.Sprite.prototype);
 EnemyBullet.prototype.constructor = EnemyBullet;
+var Comet = function(game, x, y, type,health) {
+
+    this.game = game;
+    this.health = health;
+
+    Phaser.Sprite.call(this, game, x, y, type);
+
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.outOfBoundsKill = true;
+    var randDirect = Math.random() < 0.5 ? 1 : -1;
+    this.body.velocity.setTo(75 * randDirect, COMET_SPEED*randDirect);
+    //this.body.velocity=COMET_SPEED;
+
+    //this.collideWorldBounds=true;
+    this.healthbar = game.make.sprite(-25, -20, 'health');
+    this.healthbar.x-=3;
+     this.addChild(this.healthbar);
+     emitter = game.add.emitter(0,0,400);
+
+    emitter.makeParticles( [ 'particle1'] );
+
+    emitter.gravity = 0;
+    emitter.setAlpha(1, 0, 3000);
+    emitter.setScale(0.8, 0, 0.8, 0, 3000);
+    emitter.angle=180;
+
+    emitter.start(false, 3000, 5);
+    this.addChild(emitter);
+    
+
+};
+
+Comet.prototype = Object.create(Phaser.Sprite.prototype);
+Comet.prototype.constructor = Comet;
+Comet.prototype.killcomet= function() {
+    
+    if(this.body.collideWorldBounds==true){
+
+    	this.kill;
+    }
+    
+};
+Comet.prototype.dropLoot = function(){
+
+    
+   var Drop = Math.ceil(Math.random() * 4);
+    var posVar = Math.ceil(Math.random() * 20);
+    var dropAmt = Math.floor(Math.random() * 20);
+
+   
+
+        switch(Drop){
+                case 1:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Nd');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 2:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'W');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 3:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Pt');
+                        metals.add(metal);
+                    }
+                    break;
+
+                case 4:
+                    for (var i = 0; i < dropAmt; i++) {
+                        metal = new Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Au');
+                        metals.add(metal);
+                    }
+                    break;
+
+            }
+                    
+
+};
+var newComet = function(){
+
+  
+    var comettwo = new Comet(this.game, this.game.world.randomX, this.game.world.randomY, 'comet');
+    console.log('A comet at ' + comettwo.x + ", " + comettwo.y);
+    comet.add(comettwo);
+   // comet.spawn();
+  
+};
+
+var newEnemies = function(){
+
+    if(enemiesAlive < 1){
+
+        for (var i = 0; i < 10; i++) {
+            var basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
+            enemies.add(basic);
+            enemiesAlive ++;
+        }
+
+        for (var i = 0; i < 3; i++) {
+            var bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
+            enemies.add(bruiser);
+            enemiesAlive++;
+        }
+
+        for (var m = 0; m < 1; m++) {
+            var captain = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.ship);
+            enemies.add(captain);
+            enemiesAlive++;
+        }
+
+        for (var i = 0; i < 5; i++) {
+            var govt = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
+            enemies.add(govt);
+            enemiesAlive++;
+        }
+
+    }
+};
 
 // --- INITIATE GAME
 
