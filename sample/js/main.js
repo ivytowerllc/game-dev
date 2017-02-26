@@ -22,7 +22,7 @@ var anomalies;
 var smlAst;
 var medAst;
 var enemiesAlive;
-var comet;
+var comets;
 
 // Bullet damages
 var SHIP_BASIC_DAM = 10; // Standard weapon
@@ -206,13 +206,15 @@ var GameState = {
         // Bullets come from the ship's tip
         this.weapon.trackSprite(this.ship, 0, 0, true);
 
-        // --- ASTEROID SPAWNS
-
+        // All the groups of objects in the game
         asteroids = this.game.add.group();
-         comet=this.game.add.group();
-        var cometone=new Comet(this.game,this.ship.x,this.ship.y,'comet',COMET_HEALTH);
-        //var comet2=this.game.add.sprite(this.ship.x,this.ship.y,'comet');
-        comet.add(cometone);
+        comets = this.game.add.group();
+        crystals = this.game.add.group();
+        metals = this.game.add.group();
+        dusts = this.game.add.group();
+        anomalies = this.game.add.group();
+
+        // --- ASTEROID SPAWNS
         
         for (var i = 0; i < 50; i++) {
             var randDirect = Math.random() < 0.5 ? 1 : -1;
@@ -223,13 +225,9 @@ var GameState = {
             asteroids.add(ast);
 
         }
-        
-        crystals = this.game.add.group();
-        metals = this.game.add.group();
-        dusts = this.game.add.group();
-        anomalies = this.game.add.group();
 
         // --- ENEMY SPAWNS
+
         enemiesAlive = 0;
 
         // Add basic enemies
@@ -331,8 +329,8 @@ var GameState = {
 
         enemies.forEachAlive(bulletCollision, this, this.weapon);
         asteroids.forEachAlive(bulletCollision, this, this.weapon);
-        comet.forEachAlive(bulletCollision,this,this.weapon);
-        comet.forEachAlive(this.killcomet);
+        comets.forEachAlive(bulletCollision,this,this.weapon);
+       // comets.forEachAlive(this.killcomet);
         this.physics.arcade.overlap(enemyWeapon, this.ship, callDamage, null, this);
         
         if (this.ship.alive == true) {
@@ -1044,22 +1042,6 @@ var anomalyEffect = function(ship, anomaly){
 };
 
 
-var newAnomaly = function(){
-
-    var anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][Math.floor(Math.random() * 8)];
-    anomaly = new Anomaly(this.game, this.game.world.randomX, this.game.world.randomY, anomalyKey);
-    console.log('New anomaly at ' + anomaly.x + ", " + anomaly.y);
-    anomalies.add(anomaly);
-    anomaly.spawn();
-    game.time.events.add(10000, destroy, this);
-};
-
-Anomaly.prototype.spawn = function(){
-
-    game.time.events.add(15000, newAnomaly, this);
-
-
-};
 
 var destroy = function(){
 
@@ -1475,6 +1457,7 @@ var EnemyBullet = function(game, x, y, type, player, speed, posVar) {
 
 EnemyBullet.prototype = Object.create(Phaser.Sprite.prototype);
 EnemyBullet.prototype.constructor = EnemyBullet;
+
 var Comet = function(game, x, y, type,health) {
 
     this.game = game;
@@ -1485,15 +1468,13 @@ var Comet = function(game, x, y, type,health) {
     this.game.physics.arcade.enable(this);
     this.anchor.setTo(0.5);
     this.body.outOfBoundsKill = true;
-    var randDirect = Math.random() < 0.5 ? 1 : -1;
-    this.body.velocity.setTo(75 * randDirect, COMET_SPEED*randDirect);
     //this.body.velocity=COMET_SPEED;
 
     //this.collideWorldBounds=true;
     this.healthbar = game.make.sprite(-25, -20, 'health');
     this.healthbar.x-=3;
-     this.addChild(this.healthbar);
-     emitter = game.add.emitter(0,0,400);
+    this.addChild(this.healthbar);
+    emitter = game.add.emitter(0,0,400);
 
     emitter.makeParticles( [ 'particle1'] );
 
@@ -1510,14 +1491,16 @@ var Comet = function(game, x, y, type,health) {
 
 Comet.prototype = Object.create(Phaser.Sprite.prototype);
 Comet.prototype.constructor = Comet;
-Comet.prototype.killcomet= function() {
+
+/*Comet.prototype.killcomet= function() {
     
     if(this.body.collideWorldBounds==true){
 
     	this.kill;
     }
     
-};
+}; */
+
 Comet.prototype.dropLoot = function(){
 
     
@@ -1562,12 +1545,63 @@ Comet.prototype.dropLoot = function(){
 };
 var newComet = function(){
 
+    var upDownLeftRIght = Math.random();
+
+    if(upDownLeftRIght >= .75){
+        var comet = new Comet(this.game, 0, this.game.world.randomY, 'comet');
+        console.log('A comet at ' + comet.x + ", " + comet.y);
+        comet.body.velocity.setTo(75, COMET_SPEED);
+        comet.scale.setTo(2);
+        comets.add(comet);
+
+    } else if(upDownLeftRIght >= .5){
+        comet = new Comet(this.game, 5000, this.game.world.randomY, 'comet');
+        console.log('A comet at ' + comet.x + ", " + comet.y);
+        comet.body.velocity.setTo(-75, COMET_SPEED * -1);
+        comet.scale.setTo(2);
+        comets.add(comet);
+
+    } else if(upDownLeftRIght >= .25){
+        comet = new Comet(this.game, this.game.world.randomX, 0, 'comet');
+        console.log('A comet at ' + comet.x + ", " + comet.y);
+        comet.body.velocity.setTo(75, COMET_SPEED);
+        comet.scale.setTo(2);
+        comets.add(comet);
+
+    } else {
+        comet = new Comet(this.game, this.game.world.randomX, 5000, 'comet');
+        console.log('A comet at ' + comet.x + ", " + comet.y);
+        comet.body.velocity.setTo(-75, COMET_SPEED * -1);
+        comet.scale.setTo(2);
+        comets.add(comet);
+    }
+
+    comet.spawn();
   
-    var comettwo = new Comet(this.game, this.game.world.randomX, this.game.world.randomY, 'comet');
-    console.log('A comet at ' + comettwo.x + ", " + comettwo.y);
-    comet.add(comettwo);
-   // comet.spawn();
-  
+};
+
+Comet.prototype.spawn = function(){
+
+    game.time.events.add(20000, newComet, this);
+
+
+};
+
+var newAnomaly = function(){
+
+    var anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][Math.floor(Math.random() * 8)];
+    anomaly = new Anomaly(this.game, this.game.world.randomX, this.game.world.randomY, anomalyKey);
+    console.log('New anomaly at ' + anomaly.x + ", " + anomaly.y);
+    anomalies.add(anomaly);
+    anomaly.spawn();
+    game.time.events.add(10000, destroy, this);
+};
+
+Anomaly.prototype.spawn = function(){
+
+    game.time.events.add(15000, newAnomaly, this);
+
+
 };
 
 var newEnemies = function(){
