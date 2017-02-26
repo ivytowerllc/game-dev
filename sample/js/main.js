@@ -233,14 +233,14 @@ var GameState = {
         // Add basic enemies
         enemies = this.game.add.group();
         enemies.enableBody = true;
-        for (var i = 0; i < 1; i++) {
+        for (var i = 0; i < 10; i++) {
             var basic = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
             enemies.add(basic);
             enemiesAlive ++;
         }
 
         // Add bruiser class enemies
-        for (var i = 0; i < 1; i++) {
+        for (var i = 0; i < 5; i++) {
             var bruiser = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
             enemies.add(bruiser);
             enemiesAlive++;
@@ -254,7 +254,7 @@ var GameState = {
         }
         
         // Add government enemies
-        for (var i = 0; i < 1; i++) {
+        for (var i = 0; i < 10; i++) {
             var govt = new Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
             enemies.add(govt);
             enemiesAlive++;
