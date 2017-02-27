@@ -1582,7 +1582,7 @@ var newComet = function(){
 
 Comet.prototype.spawn = function(){
 
-    game.time.events.add(20000, newComet, this);
+    game.time.events.add((10000 + (Math.random() * 30000)), newComet, this);
 
 
 };
