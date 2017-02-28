@@ -457,7 +457,7 @@ var callDamage = function(sprite, weapon) {
                 sprite.health -= damage;
                
         }else if(sprite.key=='comet'){
-             sprite.healthbar.scale.x-=damage/COMET_HEALTH;
+             
              sprite.health -= damage;
 
         }else if(sprite.key == 'basic' ){
@@ -1471,9 +1471,7 @@ var Comet = function(game, x, y, type,health) {
     //this.body.velocity=COMET_SPEED;
 
     //this.collideWorldBounds=true;
-    this.healthbar = game.make.sprite(-25, -20, 'health');
-    this.healthbar.x-=3;
-    this.addChild(this.healthbar);
+  
     emitter = game.add.emitter(0,0,400);
 
     emitter.makeParticles( [ 'particle1'] );
