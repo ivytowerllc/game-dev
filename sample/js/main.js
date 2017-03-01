@@ -315,7 +315,7 @@ var GameState = {
                 metals.add(metal);
                 dustBurnt = 0;
             }
-            this.shield.scale.x-=.001;
+            this.shield.scale.x-=.0025;
             if(DUST_COLLECTED == 0) this.shield.scale.x = 0;
 
 
@@ -420,9 +420,9 @@ var callDamage = function(sprite, weapon) {
         
     } else {
     	//the sprite is not dead
-        if (sprite.key == 'ship' && DUST_COLLECTED >0) {
+        if (sprite.key == 'ship' && DUST_COLLECTED > 0) {
         	//the sprite is the player// the object hit is the player// the player has shield
-              this.shield.scale.x -= damage/1000+.0001;
+              this.shield.scale.x -= damage * .0025;
               DUST_COLLECTED -= damage;
               if (DUST_COLLECTED < 0) {
                   DUST_COLLECTED = 0;
@@ -535,13 +535,13 @@ var collectDust = function(ship, dust) {
         
         if (dust.key == 'smlDust') {
             DUST_COLLECTED += 1;
-            this.shield.scale.x += .001
+            this.shield.scale.x += .0025
         } else if (dust.key == 'medDust') {
             DUST_COLLECTED += 3;
-            this.shield.scale.x += .003
+            this.shield.scale.x += .0075
         } else if (dust.key == 'bigDust') { 
             DUST_COLLECTED += 6;
-            this.shield.scale.x += .006;
+            this.shield.scale.x += .015;
         }
         
         if (DUST_COLLECTED > 200) {
