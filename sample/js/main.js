@@ -131,7 +131,6 @@ var GameState = {
         this.game.load.image('sunstone', 'assets/diamond.png');
         this.game.load.image('sunstoneb', 'assets/sunsbull.png');
         this.game.load.image('topaz', 'assets/diamond.png');
-        this.game.load.image('topazb', 'assets/topzbull.png');
         this.game.load.image('emerald', 'assets/diamond.png');
         this.game.load.image('sapphire', 'assets/diamond.png');
         this.game.load.image('sapphireb', 'assets/sappbull.png');
