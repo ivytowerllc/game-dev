@@ -94,6 +94,12 @@ var loadState = {
         game.load.audio('asteroidMenu', 'assets/asteroidMenu.wav');
         game.load.audio('dead', 'assets/dead.wav');
         game.load.audio('money', 'assets/money.wav');
+        game.load.audio('diamondShot', 'assets/diamond.wav');
+        game.load.audio('engineIdle', 'assets/engineIdle.wav');
+        game.load.audio('bruiserShot', 'assets/bruiserShot.wav');
+        game.load.audio('captainShot', 'assets/captainShot.wav');
+        game.load.audio('basicShot', 'assets/basicShot.wav');
+        game.load.audio('jupiter', 'assets/jupiter.wav');
     },
 
     create: function(){
