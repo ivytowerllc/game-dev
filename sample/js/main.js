@@ -687,6 +687,13 @@ var collectMaterial = function(ship, material) {
             console.log(material.key);
             break;
         case 'magnet':
+           
+            
+            //this essentially atctivates he effect, repeating 15 times in 15 seconds, by the second
+            game.time.events.repeat(Phaser.Timer.SECOND * 1, 15, activ_Mag_Effect, this);
+            
+            
+            
             console.log(material.key);
             break;
         case 'blackhole':
@@ -713,6 +720,28 @@ var collectMaterial = function(ship, material) {
     material.kill();
 
 };
+
+
+
+//Target all visible metals in radius of ship
+var activ_Mag_Effect=function(){
+     metals.forEachAlive(magnet,this,this.ship,200);
+    };
+
+
+///the actual magnet effect
+var magnet=function(sprite, ship, distance){
+
+        if(Math.abs(sprite.x-ship.x)<=distance && Math.abs(sprite.y-ship.y)<=distance){
+
+       this.game.physics.arcade.moveToObject(sprite,ship,50);
+
+        var angle = Math.atan2(ship.y - sprite.y, ship.x - sprite.x);
+        sprite.rotation = angle;
+         
+         }
+       
+    };
 
 // --- ASTEROIDS
 
