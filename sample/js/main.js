@@ -706,6 +706,7 @@ var collectMaterial = function(ship, material) {
             console.log(material.key);
             break;
         case 'invisible':
+            enemies.forEachAlive(invis,this,this.player);
             console.log(material.key);
             break;
         case 'bomb':
@@ -724,9 +725,33 @@ var collectMaterial = function(ship, material) {
 
 
 //Target all visible metals in radius of ship
-var activ_Mag_Effect=function(){
-     metals.forEachAlive(magnet,this,this.ship,200);
+var activ_Effect=function(b){
+	
+     metals.forEachAlive(magnet,this,this.ship,200);   
+
+	
     };
+var invis=function(sprite,player){
+
+	  // so that enemies cannot see or aggro to the player
+	  sprite.aggroRange=0;
+	  // actually make ship invisible if not already
+	  if(player.visible=true){
+	  player.visible=false;
+	  }
+	  //turn off effect after 10 seconds
+	  game.time.events.add(Phaser.Timer.SECOND * 10, neginvis, this,sprite,player);
+
+};
+var neginvis=function(sprite,player){
+	//turn off invisiblity setting aggro range of all enemies back to 400 and making ship visible again
+	sprite.aggroRange=400;
+	//ship is not already visible
+	if(player.visible=false){
+	player.visible=true;
+   }
+
+};
 
 
 ///the actual magnet effect
