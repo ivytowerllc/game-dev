@@ -706,7 +706,7 @@ var collectMaterial = function(ship, material) {
             console.log(material.key);
             break;
         case 'invisible':
-            enemies.forEachAlive(invis,this,this.player);
+            enemies.forEachAlive(invis,this,this.ship);
             console.log(material.key);
             break;
         case 'bomb':
@@ -747,9 +747,9 @@ var neginvis=function(sprite,player){
 	//turn off invisiblity setting aggro range of all enemies back to 400 and making ship visible again
 	sprite.aggroRange=400;
 	//ship is not already visible
-	if(player.visible=false){
+	
 	player.visible=true;
-   }
+   
 
 };
 
