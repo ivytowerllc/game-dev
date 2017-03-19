@@ -700,6 +700,7 @@ var collectMaterial = function(ship, material) {
             console.log(material.key);
             break;
         case 'transmute':
+            metals.forEachAlive(transmute,this,this.key);
             console.log(material.key);
             break;
         case 'drone':
@@ -731,6 +732,82 @@ var activ_Effect=function(b){
 
 	
     };
+  // 2 up each metal type
+var transmute=function(sprite,key){
+   switch(key){
+        case 'Li':
+            sprite.key = 'Al';
+            break;
+        case 'C':
+            sprite.key='Ti';
+            break;
+        case 'Al':
+          sprite.key='Cr';
+          
+            break;
+        case 'Ti':
+          sprite.key='Fe';
+            
+            break;
+        case 'Cr':
+          sprite.key='Co';
+            
+            break;
+        case 'Fe':
+              sprite.key='Ni';
+           
+            break;
+        case 'Co':
+          sprite.key='Cu';
+           
+            break;
+        case 'Ni':
+          sprite.key='zn';
+           
+            break;
+        case 'Cu':
+          sprite.key='Pd';
+            
+            break;
+        case 'Zn':
+          sprite.key='Ag';
+            
+            break;
+        case 'Pd':
+          sprite.key='Sn';
+          
+            break;
+        case 'Ag':
+          sprite.key='Nd';
+            
+            break;
+        case 'Sn':
+          sprite.key='w';
+           
+            break;
+        case 'Nd':
+          sprite.key='Pt';
+          
+            break;
+        case 'W':
+              sprite.key='Au';
+       
+            break;
+        case 'Pt':
+          sprite.key='Hg';
+            
+            break;
+        case 'Au':
+          sprite.key='Hg';
+        
+            break;
+        case 'Hg':
+           
+            break;
+    }
+
+
+}
 var invis=function(sprite,player){
 
 	  // so that enemies cannot see or aggro to the player
