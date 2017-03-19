@@ -814,7 +814,7 @@ var invis=function(sprite,player){
 	  sprite.aggroRange=0;
 	  // actually make ship invisible if not already
 	  
-	  player.setAlpha(0.2);
+	  player.alpha=0.2;
 	  
 	  //turn off effect after 10 seconds
 	  game.time.events.add(Phaser.Timer.SECOND * 10, neginvis, this,sprite,player);
@@ -825,7 +825,7 @@ var neginvis=function(sprite,player){
 	sprite.aggroRange=400;
 	//ship is not already visible
 	
-	player.setAlpha(1);
+	player.alpha=1;
    
 
 };
