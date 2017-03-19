@@ -88,6 +88,9 @@ var loadState = {
         game.load.image('comet','assets/comet.png');
         game.load.image('particle1','assets/p1.png');
         game.load.image('particle2','assets/p2.png');
+        game.load.image('startButton', 'assets/startButton.png');
+        game.load.image('settingsButton', 'assets/settingsButton.png');
+        game.load.image('menuButton', 'assets/menuButton.png');
 
         // Background music
         game.load.audio('earthMoon', 'assets/earthMoon.wav');
@@ -100,6 +103,8 @@ var loadState = {
         game.load.audio('captainShot', 'assets/captainShot.wav');
         game.load.audio('basicShot', 'assets/basicShot.wav');
         game.load.audio('jupiter', 'assets/jupiter.wav');
+        game.load.audio('dust', 'assets/dust.wav');
+        game.load.audio('bruiserShot', 'assets/bruiserShot.wav');
     },
 
     create: function(){
