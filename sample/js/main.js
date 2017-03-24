@@ -732,6 +732,14 @@ var activ_Effect=function(b){
 
 	
     };
+var makeDrone=function(ship){
+	drone_activ=true;
+    drone=new Drone(this.game, ship.centerX+10, ship.y,'ship',SHIP_HEALTH/2);
+    var drones=this.game.add.group();
+  drones.add(drone);
+
+
+}
   // 2 up each metal type
 var transmute=function(sprite,key){
    switch(key){
@@ -1769,6 +1777,37 @@ var Enemy = function(game, x, y, type, speed, health, player) {
 
 Enemy.prototype = Object.create(Phaser.Sprite.prototype);
 Enemy.prototype.constructor = Enemy;
+var Drone= function(game, x, y, type, speed, health, player) {
+    
+    var game = game;
+    var speed = speed;
+    var health = health;
+    var player = player;
+    var burn = false;
+    var aggroRange = 400;
+    var minDist = 100;
+    var shootNow = 0;
+    var healthbar;
+    
+    Phaser.Sprite.call(this, game, x, y, type);
+    
+    this.game.physics.arcade.enable(this);
+    this.anchor.setTo(0.5);
+    this.body.collideWorldBounds = true;
+    this.body.drag.setTo(10, 10);
+    this.scale.setTo(0.5);
+   
+    
+  
+    this.healthbar = game.make.sprite(-10, -20, 'health');
+    this.healthbar.anchor.setTo(0.5);
+    this.healthbar.scale.setTo(0.5);	
+    this.addChild(this.healthbar);
+    
+};
+
+Drone.prototype = Object.create(Phaser.Sprite.prototype);
+Drone.prototype.constructor = Drone;
 
 // Random enemy movement around the level
 Enemy.prototype.move = function() {
