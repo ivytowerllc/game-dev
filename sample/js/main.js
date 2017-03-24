@@ -313,6 +313,15 @@ var GameState = {
         
         var changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
         changeKey.onDown.add(changeWeapon, this);
+	    
+        if(drone_activ){
+        	//if drone is allive
+        	if(game.input.activePointer.isDown){
+        	game.physics.arcade.moveToObject(drone,this.ship, 100);
+        	//drone.rotation = game.physics.arcade.angleToPointer(drone);
+               }
+        	
+        }
         
         // --- PLAYER BOOST
         
