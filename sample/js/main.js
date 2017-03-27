@@ -24,6 +24,7 @@ var dustBurnt = 0;
 var anomaly;
 var anomalies;
 var comets;
+var drone_activ;
 
 // Player variables
 var SHIP_SPEED = 300;
