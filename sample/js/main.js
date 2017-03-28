@@ -317,10 +317,7 @@ var GameState = {
 	    
         if(drone_activ){
         	//if drone is allive
-        	if(game.input.activePointer.isDown){
-        	game.physics.arcade.moveToObject(drone,this.ship, 100);
-        	//drone.rotation = game.physics.arcade.angleToPointer(drone);
-               }
+        	  metals.forEachAlive(scoutmetals, drone,this.ship, this);
         	
         }
         
@@ -368,6 +365,15 @@ var GameState = {
     }
     
 };
+var scoutmetals=function (drone,ship,metalsprite) {
+    var distance = this.game.physics.arcade.distanceBetween(drone, metalsprite);
+    if (distance <= 100 && drone.alive== true && metalsprite.alive == true) {
+        game.physics.arcade.moveToObject(drone, metalsprite, 100);
+    }else{
+        game.physics.arcade.moveToObject(drone, ship, 100);
+    }
+};
+
 
 var changeWeapon = function() {
   
