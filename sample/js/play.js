@@ -86,6 +86,7 @@ var playState = {
     COMET_SPEED: 250,
 
     astCount: 0,
+    transmuteFlag: false,
 
     create: function() {
 
@@ -142,8 +143,8 @@ var playState = {
 
         // --- PLAYER BULLETS
 
-        this.weapons.push(new this.Weapon.Diamond(this.game));
-        this.diamondTier = 1;
+        this.weapons.push(new this.Weapon.Amethyst(this.game));
+        this.amethystTier = 3;
 
         // Create game groups
         this.asteroids = this.game.add.group();
@@ -219,8 +220,8 @@ var playState = {
 
         // Spawn an anomaly after 15 seconds
         this.game.time.events.add(Phaser.Timer.SECOND * 15, function(){
-            anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][Math.floor(Math.random() * 8)];
-            this.anomaly = new this.Anomaly(this.game, this.game.world.width/2, this.game.world.height/2, 'infinity');
+            anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][3];
+            this.anomaly = new this.Anomaly(this.game, this.game.world.width/2, this.game.world.height/2, anomalyKey);
             console.log('New anomaly at ' + this.anomaly.x + ", " + this.anomaly.y);
             this.anomalies.add(this.anomaly);
             this.anomaly.spawn();
@@ -280,7 +281,7 @@ var playState = {
 
         boost = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
-        if (boost.isDown && this.this.DUST_COLLECTED > 0) {
+        if (boost.isDown && this.DUST_COLLECTED > 0) {
 
             this.dustBurnt += 1;
             this.DUST_COLLECTED -= 1;
@@ -330,7 +331,7 @@ var playState = {
         this.enemies.forEachAlive(this.bulletCollision, this, this.weapons);
         this.asteroids.forEachAlive(this.bulletCollision, this, this.weapons);
         this.comets.forEachAlive(this.bulletCollision, this, this.weapons);
-        this.physics.arcade.overlap(this.enemyWeapon, this.ship, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
+        //this.physics.arcade.overlap(this.enemyWeapon, this.ship, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
 
         if (this.ship.alive == true) {
 
@@ -421,9 +422,9 @@ var playState = {
 
     callDamage: function(sprite, weapon) {
 
-        bullet = weapon;
+        var bullet = weapon,
+            damage;
 
-        damage;
         switch (weapon.key) {
             case 'diamondb':
                 damage = this.SHIP_BASIC_DAM;
@@ -619,9 +620,141 @@ var playState = {
 
         var randomUpgrade;
 
+        console.log(material.key);
+
         // Metal pickup
         if (this.metals.children.indexOf(material) > -1) {
-            this.collectedMetals.push(material);
+
+            if(this.transmuteFlag == true){
+
+                console.log("STILL TRANSMUTING");
+                switch(material.key){
+
+                    case 'Li':
+                        console.log("Changed to Aluminum");
+                        material.key = "Al";
+                        material.type = "Al";
+                        material.value = 13;
+
+                        break;
+
+                    case 'Al':
+                        console.log("Changed to Titanium");
+                        material.key = "Ti";
+                        material.type = "Ti";
+                        material.value = 22;
+
+                        break;
+                    case 'Ti':
+                        console.log("Changed to Chromium");
+                        material.key = "Cr";
+                        material.type = "Cr";
+                        material.value = 24;
+
+                        break;
+                    case 'Cr':
+                        console.log("Changed to Iron");
+                        material.key = "Fe";
+                        material.type = "Fe";
+                        material.value = 26;
+
+                        break;
+                    case 'Fe':
+                        console.log("Changed to Cobalt");
+                        material.key = "Co";
+                        material.type = "Co";
+                        material.value = 27;
+
+                        break;
+                    case 'Co':
+                        console.log("Changed to Nickel");
+                        material.key = "Ni";
+                        material.type = "Ni";
+                        material.value = 28;
+
+                        break;
+                    case 'Ni':
+                        console.log("Changed to Copper");
+                        material.key = "Cu";
+                        material.type = "Cu";
+                        material.value = 29;
+                        break;
+
+                    case 'Cu':
+                        console.log("Changed to Zinc");
+                        material.key = "Zn";
+                        material.type = "Zn";
+                        material.value = 30;
+
+                        break;
+                    case 'Zn':
+                        console.log("Changed to Palladium");
+                        material.key = "Pd";
+                        material.type = "Pd";
+                        material.value = 46;
+
+                        break;
+                    case 'Pd':
+                        console.log("Changed to Silver");
+                        material.key = "Ag";
+                        material.type = "Ag";
+                        material.value = 47;
+
+                        break;
+                    case 'Ag':
+                        console.log("Changed to Tin");
+                        material.key = "Sn";
+                        material.type = "Sn";
+                        material.value = 50;
+
+                        break;
+                    case 'Sn':
+                        console.log("Changed to Neodymium");
+                        material.key = "Nd";
+                        material.type = "Nd";
+                        material.value = 60;
+
+                        break;
+                    case 'Nd':
+                        console.log("Changed to Tungsten");
+                        material.key = "W";
+                        material.type = "W";
+                        material.value = 74;
+
+                        break;
+                    case 'W':
+                        console.log("Changed to Platinum");
+                        material.key = "Pt";
+                        material.type = "Pt";
+                        material.value = 78;
+
+                        break;
+                    case 'Pt':
+                        console.log("Changed to Gold");
+                        material.key = "Au";
+                        material.type = "Au";
+                        material.value = 79;
+
+                        break;
+                    case 'Au':
+                        console.log("Changed to Mercury");
+                        material.key = "Hg";
+                        material.type = "Hg";
+                        material.value = 80;
+
+                        break;
+                    case 'Hg':
+                        material.value = 160;
+                        break;
+                }
+                this.collectedMetals.push(material);
+                console.log(material.key + material.type + material.value);
+
+            } else{
+                this.collectedMetals.push(material);
+            }
+
+
             this.physics.arcade.overlap(ship, this.metals.children.indexOf(material), this.moneySound.play(), null, this);
         }
 
@@ -717,14 +850,25 @@ var playState = {
         switch (material.key) {
             case 'infinity':
                 console.log(material.key);
+                var savedDust = this.DUST_COLLECTED;
+                this.DUST_COLLECTED = 9999;
+                game.time.events.add(10000, function(){
+                    this.DUST_COLLECTED = savedDust;
+                }, this);
                 break;
             case 'magnet':
                 console.log(material.key);
+                this.game.time.events.repeat(1000, 15, this.metals.forEachAlive(this.magnet,this,this.ship,200), this);
                 break;
             case 'blackhole':
                 console.log(material.key);
                 break;
             case 'transmute':
+                this.transmuteFlag = true;
+                this.game.time.events.add(15000, function(){
+                    console.log("Finished Transmuting");
+                    this.transmuteFlag = false;
+                }, this);
                 console.log(material.key);
                 break;
             case 'drone':
@@ -738,12 +882,14 @@ var playState = {
                 break;
             case 'warp':
                 console.log(material.key);
+                this.ship.x = this.game.world.randomX;
+                this.ship.y = this.game.world.randomY;
                 break;
         }
 
         this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name);
-        material.kill();
 
+        material.kill();
     },
 
     // --- ASTEROIDS
@@ -925,12 +1071,7 @@ var playState = {
 
         switch (anomaly.key) {
             case 'infinity':
-                console.log(anomaly.key + " infinity effect");
-                var savedDust = this.DUST_COLLECTED;
-                this.DUST_COLLECTED = 9999;
-                game.time.events.add(10000, function(){
-                    this.DUST_COLLECTED = savedDust;
-                }, this);
+
 
                 break;
             case 'magnet':
@@ -1004,28 +1145,28 @@ var playState = {
             console.log('A comet at ' + comet.x + ", " + comet.y);
             comet.body.velocity.setTo(75, this.COMET_SPEED);
             comet.scale.setTo(2);
-            this.comets.add(comet);
+            playState.comets.add(comet);
 
         } else if (upDownLeftRight >= .5) {
             comet = new playState.Comet(this.game, 5000, this.game.world.randomY, 'comet', this.COMET_HEALTH);
             console.log('A comet at ' + comet.x + ", " + comet.y);
             comet.body.velocity.setTo(-75, this.COMET_SPEED * -1);
             comet.scale.setTo(2);
-            this.comets.add(comet);
+            playState.comets.add(comet);
 
         } else if (upDownLeftRight >= .25) {
             comet = new playState.Comet(this.game, this.game.world.randomX, 0, 'comet', this.COMET_HEALTH);
             console.log('A comet at ' + comet.x + ", " + comet.y);
             comet.body.velocity.setTo(75, this.COMET_SPEED);
             comet.scale.setTo(2);
-            this.comets.add(comet);
+            playState.comets.add(comet);
 
         } else {
             comet = new playState.Comet(this.game, this.game.world.randomX, 5000, 'comet', this.COMET_HEALTH);
             console.log('A comet at ' + comet.x + ", " + comet.y);
             comet.body.velocity.setTo(-75, this.COMET_SPEED * -1);
             comet.scale.setTo(2);
-            this.comets.add(comet);
+            playState.comets.add(comet);
         }
 
         comet.spawn();
@@ -1129,125 +1270,125 @@ playState.Asteroid.prototype.spawnDrop = function() {
         crystalDropRate = Math.ceil(Math.random() * 100),
         a, b, c, d, e, f, g, h, i, k, l, m, n, o, p, q, r, z, zy, zyx, crystalKey;
 
-    if (playState.health < 1) {
+    if (this.health < 1) {
 
         // Metal drops
         if (metalDropRate < 5) {
 
             for (h = 0; h < metalDropAmt; h++) {
-                playState.metal = new playState.Metal(this.game, this.x + (h * posVar), this.y + (h * posVar), 'Hg');
+                playState.metal = new playState.Metal(playState.game, this.x + (h * posVar), this.y + (h * posVar), 'Hg');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 10) {
 
             for (k = 0; k < metalDropAmt; k++) {
-                playState.metal = new playState.Metal(this.game, this.x + (k * posVar), this.y + (k * posVar), 'Au');
+                playState.metal = new playState.Metal(playState.game, this.x + (k * posVar), this.y + (k * posVar), 'Au');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 15) {
 
             for (l = 0; l < metalDropAmt; l++) {
-                playState.metal = new playState.Metal(this.game, this.x + (l * posVar), this.y + (l * posVar), 'Pt');
+                playState.metal = new playState.Metal(playState.game, this.x + (l * posVar), this.y + (l * posVar), 'Pt');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 20) {
 
             for (m = 0; m < metalDropAmt; m++) {
-                playState.metal = new playState.Metal(this.game, this.x + (m * posVar), this.y + (m * posVar), 'W');
+                playState.metal = new playState.Metal(playState.game, this.x + (m * posVar), this.y + (m * posVar), 'W');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 25) {
 
             for (n = 0; n < metalDropAmt; n++) {
-                playState.metal = new playState.Metal(this.game, this.x + (n * posVar), this.y + (n * posVar), 'Nd');
+                playState.metal = new playState.Metal(playState.game, this.x + (n * posVar), this.y + (n * posVar), 'Nd');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 30) {
 
             for (o = 0; o < metalDropAmt; o++) {
-                playState.metal = new playState.Metal(this.game, this.x + (o * posVar), this.y + (o * posVar), 'Sn');
+                playState.metal = new playState.Metal(playState.game, this.x + (o * posVar), this.y + (o * posVar), 'Sn');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 40) {
 
             for (p = 0; p < metalDropAmt; p++) {
-                playState.metal = new playState.Metal(this.game, this.x + (p * posVar), this.y + (p * posVar), 'Ag');
+                playState.metal = new playState.Metal(playState.game, this.x + (p * posVar), this.y + (p * posVar), 'Ag');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 45) {
 
             for (i = 0; i < metalDropAmt; i++) {
-                playState.metal = new playState.Metal(this.game, this.x + (i * posVar), this.y + (i * posVar), 'Pd');
+                playState.metal = new playState.Metal(playState.game, this.x + (i * posVar), this.y + (i * posVar), 'Pd');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 50) {
 
             for (q = 0; q < metalDropAmt; q++) {
-                playState.metal = new playState.Metal(this.game, this.x + (q * posVar), this.y + (q * posVar), 'Zn');
+                playState.metal = new playState.Metal(playState.game, this.x + (q * posVar), this.y + (q * posVar), 'Zn');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 55) {
 
             for (r = 0; r < metalDropAmt; r++) {
-                playState.metal = new playState.Metal(this.game, this.x + (r * posVar), this.y + (r * posVar), 'Cu');
+                playState.metal = new playState.Metal(playState.game, this.x + (r * posVar), this.y + (r * posVar), 'Cu');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 60) {
 
             for (a = 0; a < metalDropAmt; a++) {
-                playState.metal = new playState.Metal(this.game, this.x + (a * posVar), this.y + (a * posVar), 'Ni');
+                playState.metal = new playState.Metal(playState.game, this.x + (a * posVar), this.y + (a * posVar), 'Ni');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 65) {
 
             for (b = 0; b < metalDropAmt; b++) {
-                playState.metal = new playState.Metal(this.game, this.x + (b * posVar), this.y + (b * posVar), 'Co');
+                playState.metal = new playState.Metal(playState.game, this.x + (b * posVar), this.y + (b * posVar), 'Co');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 70) {
 
             for (c = 0; c < metalDropAmt; c++) {
-                playState.metal = new playState.Metal(this.game, this.x + (c * posVar), this.y + (c * posVar), 'Fe');
+                playState.metal = new playState.Metal(playState.game, this.x + (c * posVar), this.y + (c * posVar), 'Fe');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 75) {
 
             for (d = 0; d < metalDropAmt; d++) {
-                playState.metal = new playState.Metal(this.game, this.x + (d * posVar), this.y + (d * posVar), 'Cr');
+                playState.metal = new playState.Metal(playState.game, this.x + (d * posVar), this.y + (d * posVar), 'Cr');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 80) {
 
             for (e = 0; e < metalDropAmt; e++) {
-                playState.metal = new playState.Metal(this.game, this.x + (e * posVar), this.y + (e * posVar), 'Ti');
+                playState.metal = new playState.Metal(playState.game, this.x + (e * posVar), this.y + (e * posVar), 'Ti');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 85) {
 
             for (f = 0; f < metalDropAmt; f++) {
-                playState.metal = new playState.Metal(this.game, this.x + (f * posVar), this.y + (f * posVar), 'Al');
+                playState.metal = new playState.Metal(playState.game, this.x + (f * posVar), this.y + (f * posVar), 'Al');
                 playState.metals.add(playState.metal);
             }
 
         } else if (metalDropRate < 90) {
 
             for (g = 0; g < metalDropAmt; g++) {
-                playState.metal = new playState.Metal(this.game, this.x + (g * posVar), this.y + (g * posVar), 'Li');
+                playState.metal = new playState.Metal(playState.game, this.x + (g * posVar), this.y + (g * posVar), 'Li');
                 playState.metals.add(playState.metal);
             }
 
@@ -1304,70 +1445,70 @@ playState.Asteroid.prototype.bust = function() {
 
     if (this.key == 'bigBlueAst') {
         for (a = 0; a < (Math.ceil(Math.random() * 3)); a++) {
-            medAst = new playState.Asteroid(this.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medBlueAst', this.MED_AST_SCALE, this.MED_AST_HEALTH, this.MED_AST_SPEED);
+            medAst = new playState.Asteroid(playState.game, this.x + ((a + 1) * posVar), this.y + ((a + 1) * posVar), 'medBlueAst', playState.MED_AST_SCALE, playState.MED_AST_HEALTH, playState.MED_AST_SPEED);
             medAst.body.bounce.set(0.5);
             playState.asteroids.add(medAst);
             this.astCount++;
         }
     } else if (this.key == 'medBlueAst') {
         for (b = 0; b < (Math.ceil(Math.random() * 3)); b++) {
-            smlAst = new playState.Asteroid(this.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlBlueAst', this.SML_AST_SCALE, this.SML_AST_HEALTH, this.SML_AST_SPEED);
+            smlAst = new playState.Asteroid(playState.game, this.x + ((b + 1) * posVar), this.y + ((b + 1) * posVar), 'smlBlueAst', playState.SML_AST_SCALE, playState.SML_AST_HEALTH, playState.SML_AST_SPEED);
             smlAst.body.bounce.set(0.5);
             playState.asteroids.add(smlAst);
             this.astCount++;
         }
     } else if (this.key == 'bigGreyAst') {
         for (c = 0; c < (Math.ceil(Math.random() * 3)); c++) {
-            medAst = new playState.Asteroid(this.game, this.x + ((c + 1) * posVar), this.y + ((c + 1) * posVar), 'medGreyAst', this.MED_AST_SCALE, this.MED_AST_HEALTH, this.MED_AST_SPEED);
+            medAst = new playState.Asteroid(playState.game, this.x + ((c + 1) * posVar), this.y + ((c + 1) * posVar), 'medGreyAst', playState.MED_AST_SCALE, playState.MED_AST_HEALTH, playState.MED_AST_SPEED);
             medAst.body.bounce.set(0.5);
             playState.asteroids.add(medAst);
             this.astCount++;
         }
     } else if (this.key == 'medGreyAst') {
         for (d = 0; d < (Math.ceil(Math.random() * 3)); d++) {
-            smlAst = new playState.Asteroid(this.game, this.x + ((d + 1) * posVar), this.y + ((d + 1) * posVar), 'smlGreyAst', this.SML_AST_SCALE, this.SML_AST_HEALTH, this.SML_AST_SPEED);
+            smlAst = new playState.Asteroid(playState.game, this.x + ((d + 1) * posVar), this.y + ((d + 1) * posVar), 'smlGreyAst', playState.SML_AST_SCALE, playState.SML_AST_HEALTH, playState.SML_AST_SPEED);
             smlAst.body.bounce.set(0.5);
             playState.asteroids.add(smlAst);
             this.astCount++;
         }
     } else if (this.key == 'bigBrownAst') {
         for (e = 0; e < (Math.ceil(Math.random() * 3)); e++) {
-            medAst = new playState.Asteroid(this.game, this.x + ((e + 1) * posVar), this.y + ((e + 1) * posVar), 'medBrownAst', this.MED_AST_SCALE, this.MED_AST_HEALTH, this.MED_AST_SPEED);
+            medAst = new playState.Asteroid(playState.game, this.x + ((e + 1) * posVar), this.y + ((e + 1) * posVar), 'medBrownAst', playState.MED_AST_SCALE, playState.MED_AST_HEALTH, playState.MED_AST_SPEED);
             medAst.body.bounce.set(0.5);
             playState.asteroids.add(medAst);
             this.astCount++;
         }
     } else if (this.key == 'medBrownAst') {
         for (f = 0; f < (Math.ceil(Math.random() * 3)); f++) {
-            smlAst = new playState.Asteroid(this.game, this.x + ((f + 1) * posVar), this.y + ((f + 1) * posVar), 'smlBrownAst', this.SML_AST_SCALE, this.SML_AST_HEALTH, this.SML_AST_SPEED);
+            smlAst = new playState.Asteroid(playState.game, this.x + ((f + 1) * posVar), this.y + ((f + 1) * posVar), 'smlBrownAst', playState.SML_AST_SCALE, playState.SML_AST_HEALTH, playState.SML_AST_SPEED);
             smlAst.body.bounce.set(0.5);
             playState.asteroids.add(smlAst);
             this.astCount++;
         }
     } else if (this.key == 'bigRedAst') {
         for (g = 0; g < (Math.ceil(Math.random() * 3)); g++) {
-            medAst = new playState.Asteroid(this.game, this.x + ((g + 1) * posVar), this.y + ((g + 1) * posVar), 'medRedAst', this.MED_AST_SCALE, this.MED_AST_HEALTH, this.MED_AST_SPEED);
+            medAst = new playState.Asteroid(playState.game, this.x + ((g + 1) * posVar), this.y + ((g + 1) * posVar), 'medRedAst', playState.MED_AST_SCALE, playState.MED_AST_HEALTH, playState.MED_AST_SPEED);
             medAst.body.bounce.set(0.5);
             playState.asteroids.add(medAst);
             this.astCount++;
         }
     } else if (this.key == 'medRedAst') {
         for (h = 0; h < (Math.ceil(Math.random() * 3)); h++) {
-            smlAst = new playState.Asteroid(this.game, this.x + ((h + 1) * posVar), this.y + ((h + 1) * posVar), 'smlRedAst', this.SML_AST_SCALE, this.SML_AST_HEALTH, this.SML_AST_SPEED);
+            smlAst = new playState.Asteroid(playState.game, this.x + ((h + 1) * posVar), this.y + ((h + 1) * posVar), 'smlRedAst', playState.SML_AST_SCALE, playState.SML_AST_HEALTH, playState.SML_AST_SPEED);
             smlAst.body.bounce.set(0.5);
             playState.asteroids.add(smlAst);
             this.astCount++;
         }
     } else if (this.key == 'bigWhiteAst') {
         for (i = 0; i < (Math.ceil(Math.random() * 3)); i++) {
-            medAst = new playState.Asteroid(this.game, this.x + ((i + 1) * posVar), this.y + ((i + 1) * posVar), 'medWhiteAst', this.MED_AST_SCALE, this.MED_AST_HEALTH, this.MED_AST_SPEED);
+            medAst = new playState.Asteroid(playState.game, this.x + ((i + 1) * posVar), this.y + ((i + 1) * posVar), 'medWhiteAst', playState.MED_AST_SCALE, playState.MED_AST_HEALTH, playState.MED_AST_SPEED);
             medAst.body.bounce.set(0.5);
             playState.asteroids.add(medAst);
             this.astCount++;
         }
     } else if (this.key == 'medWhiteAst') {
         for (j = 0; j < (Math.ceil(Math.random() * 3)); j++) {
-            smlAst = new playState.Asteroid(this.game, this.x + ((j + 1) * posVar), this.y + ((j + 1) * posVar), 'smlWhiteAst', this.SML_AST_SCALE, this.SML_AST_HEALTH, this.SML_AST_SPEED);
+            smlAst = new playState.Asteroid(playState.game, this.x + ((j + 1) * posVar), this.y + ((j + 1) * posVar), 'smlWhiteAst', playState.SML_AST_SCALE, playState.SML_AST_HEALTH, playState.SML_AST_SPEED);
             smlAst.body.bounce.set(0.5);
             playState.asteroids.add(smlAst);
             this.astCount++;
@@ -1413,12 +1554,32 @@ playState.PlayerBullet.prototype.shoot = function(x, y, posVar, speed) {
 
     this.game.physics.arcade.moveToXY(this, x, y, speed);
 
+    if (playState.weapons[playState.currentWeapon].name == 'RUBY' && playState.rubyTier > 1) {
+        playState.enemies.forEachAlive(function(sprite) {
+
+            if (Phaser.Math.distance(sprite.x, sprite.y, x, y) <= 300) {
+                playState.game.physics.arcade.moveToObject(this, sprite, 180);
+            }
+
+        }, this);
+    }
+
 };
 
 playState.PlayerBullet.prototype.update = function() {
 
     this.rotation = Math.atan2(this.body.velocity.y, this.body.velocity.x);
 
+    if (playState.weapons[playState.currentWeapon].name == 'RUBY' && playState.rubyTier > 1) {
+
+        playState.enemies.forEachAlive(function (sprite) {
+
+            if (Phaser.Math.distance(sprite.x, sprite.y, this.x, this.y) <= 300) {
+                playState.game.physics.arcade.moveToObject(this, sprite, 300);
+            }
+
+        }, this);
+    }
 };
 
 // Diamond weapon
@@ -1583,7 +1744,7 @@ playState.Weapon.Amethyst = function(game) {
     this.bulletSpeed = 900;
     this.fireRate = 10;
 
-    for (i = 0; i < 100; i++) {
+    for (i = 0; i < 200; i++) {
         this.add(new playState.PlayerBullet(game, 'amethystb'), true);
     }
 
@@ -1690,7 +1851,7 @@ playState.Anomaly.prototype.spawn = function() {
     game.time.events.add(15000, function(){
 
         var anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][Math.floor(Math.random() * 8)];
-        playState.anomaly = new playState.Anomaly(this.game, this.game.world.randomX, this.game.world.randomY, 'warp');
+        playState.anomaly = new playState.Anomaly(this.game, this.game.world.randomX, this.game.world.randomY, anomalyKey);
         console.log('New anomaly at ' + playState.anomaly.x + ", " + playState.anomaly.y);
         playState.anomalies.add(playState.anomaly);
         playState.anomaly.spawn();
@@ -1756,8 +1917,7 @@ playState.Enemy.prototype.move = function() {
             moveX = this.x,
             moveY = this.y,
             moveLeft = false,
-            moveUp = false,
-            angle = Math.atan2(moveY - this.y, moveX - this.x);
+            moveUp = false;
 
         this.nextTurn = (Math.random() * this.recalcMovement + this.minimumRecalc);
 
@@ -1804,7 +1964,7 @@ playState.Enemy.prototype.move = function() {
         }
 
         this.game.physics.arcade.moveToXY(this, moveX, moveY, this.speed);
-        this.rotation = angle;
+        this.rotation = Math.atan2(moveY - this.y, moveX - this.x);
 
     }
 
@@ -1902,7 +2062,7 @@ playState.Enemy.prototype.shoot = function() {
 
 playState.Enemy.prototype.escapePod = function() {
 
-    var escapePod = new playState.Enemy(this.game, this.x, this.y, 'escape', playState.ESCAPE_POD_SPEED, playStateESCAPE_POD_HEALTH);
+    var escapePod = new playState.Enemy(this.game, this.x, this.y, 'escape', playState.ESCAPE_POD_SPEED, playState.ESCAPE_POD_HEALTH);
     playState.enemies.add(escapePod);
 
 };
@@ -2051,3 +2211,4 @@ playState.Enemy.prototype.dropLoot = function(){
 
 playState.EnemyBullet.prototype = Object.create(Phaser.Sprite.prototype);
 playState.EnemyBullet.prototype.constructor = playState.EnemyBullet;
+
