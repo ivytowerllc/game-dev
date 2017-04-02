@@ -1,4 +1,20 @@
-Copyright Ivy Tower, LLC
-# game-dev
-Crystal Hunter Game Development // Ship, Enemies, Objects
-McM Build
+<h1>Copyright Ivy Tower, LLC<h1>
+<p># game-dev<p>
+<h2>Crystal Hunter Game Development<h2>
+
+<ul>** TO DO:
+
+   <li> - ADD WEAPONS (EMERALD, TOPAZ) </li>
+   <li> - UPDATE HOMING ROCKETS </li>
+   <li> - ADD COMBAT TO DRONE, HEALTHBAR UPDATE </li>
+   <li> - TEST MAGNET ANOMALY </li>
+   <li> - ADD SOUND EFFECTS (DUST PICKUP, BUTTON TAPS, PLAYER DEATH, CRYSTAL PCIKUP, WEAPON FIRE, WEAPON HIT) </li>
+   <li> - SETUP MULTIPLAYER ROOMS (FREE FOR ALL, SOLO BATTLE, TEAM BATTLE, SOLO HAUL, TEAM HAUL) </li>
+   <li> - ADD STORE MENU </li>
+   <li> - ADD HELP MENU </li>
+   <li> - ADD NICKNAME FUNCTIONALITY </li>
+   <li> - ADD MENU ART (BUTTONS, MENU STYLES) </li>
+   <li> - ADD MULTIPLAYER MUSIC </li>
+   <li> - ADD ART (PLAYER SHIP, ASTEROIDS, ANOMALIES, BACKGROUND, METALS, CRYSTALS, BULLETS, ENGINE FIRE, LOGO, APP BUTTON, SPLASH SCREEN, CURRENCY (FED CREDS, PURCHASABLE), DUST ACCUMULATION) </li>
+   <li> - LOADOUT SCREEN AFTER DEATH </li>
+   </ul>
