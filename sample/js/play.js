@@ -26,6 +26,8 @@ var playState = {
     anomaly: "",
     anomalies: "",
     comets: "",
+    drone: "",
+    drones: "",
 
 // Player variables
     SHIP_SPEED: 300,
@@ -143,8 +145,8 @@ var playState = {
 
         // --- PLAYER BULLETS
 
-        this.weapons.push(new this.Weapon.Amethyst(this.game));
-        this.amethystTier = 3;
+        this.weapons.push(new this.Weapon.Diamond(this.game));
+        this.diamondTier = 1;
 
         // Create game groups
         this.asteroids = this.game.add.group();
@@ -219,16 +221,16 @@ var playState = {
         this.scoreText.fixedToCamera = true;
 
         // Spawn an anomaly after 15 seconds
-        this.game.time.events.add(Phaser.Timer.SECOND * 15, function(){
-            anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][3];
-            this.anomaly = new this.Anomaly(this.game, this.game.world.width/2, this.game.world.height/2, anomalyKey);
+        this.game.time.events.add(15000, function(){
+            anomalyKey = ['infinity', 'magnet', 'transmute', 'drone', 'invisible', 'warp'][Math.floor(Math.random() * 6)];
+            this.anomaly = new this.Anomaly(this.game, this.game.world.width/2, this.game.world.height/2, 'drone');
             console.log('New anomaly at ' + this.anomaly.x + ", " + this.anomaly.y);
             this.anomalies.add(this.anomaly);
             this.anomaly.spawn();
         }, this);
 
         // Spawn a comet after 15 seconds
-        this.game.time.events.add(Phaser.Timer.SECOND * 15, this.newComet, this);
+        this.game.time.events.add(15000, this.newComet, this);
 
         if (!game.device.desktop){
             this.rotateLabel = game.add.text(game.widows/2, game.height/2, '',
@@ -276,6 +278,12 @@ var playState = {
 
         changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
         changeKey.onDown.add(this.changeWeapon, this);
+
+        if(this.drone_activ == true){
+            //if drone is alive
+            this.metals.forEachAlive(this.scoutmetals(this.drone, this.ship, this.metals), this.drone,this.ship, this);
+
+        }
 
         // --- PLAYER BOOST
 
@@ -333,17 +341,21 @@ var playState = {
         this.comets.forEachAlive(this.bulletCollision, this, this.weapons);
         //this.physics.arcade.overlap(this.enemyWeapon, this.ship, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
 
+        if(this.drone.alive == true){
+            this.physics.arcade.overlap(this.enemyWeapon, this.drone, this.callDamage, null, this);
+            this.physics.arcade.overlap(this.drone, this.metals, this.collectMaterial, null, this);
+        }
+
         if (this.ship.alive == true) {
 
             this.physics.arcade.overlap(this.ship, this.metals, this.collectMaterial, null, this);
             this.physics.arcade.overlap(this.ship, this.crystals, this.collectMaterial, null, this);
             this.physics.arcade.overlap(this.ship, this.dusts, this.collectMaterial, null, this);
             this.physics.arcade.overlap(this.ship, this.anomalies, this.collectMaterial, null, this);
-            this.physics.arcade.overlap(this.ship, this.anomalies, this.anomalyEffect, null, this);
 
         }
 
-        this.game.physics.arcade.collide( this.asteroids,  this.asteroids);
+        this.game.physics.arcade.collide( this.asteroids,  this.asteroids );
 
         if(this.ship.health <= 0){
 
@@ -354,6 +366,15 @@ var playState = {
 
             this.newAsteroids();
 
+        }
+    },
+
+    scoutmetals: function (drone, ship, metalsprite) {
+        var distance = this.game.physics.arcade.distanceBetween(drone, metalsprite);
+        if (distance <= 100 && drone.alive == true && metalsprite.alive == true) {
+            game.physics.arcade.moveToObject(drone, metalsprite, 200);
+        }else{
+            game.physics.arcade.moveToObject(drone, ship, 200);
         }
     },
 
@@ -438,12 +459,12 @@ var playState = {
                 damage = this.SHIP_CRESC_DAM;
                 if (sprite.burn == false) {
                     if (this.sunstoneTier < 3) {
-                        this.game.time.events.repeat(Phaser.Timer.SECOND, 2, this.callDamage, this, sprite, 'lessburn');
+                        this.game.time.events.repeat(1000, 2, this.callDamage, this, sprite, 'lessburn');
                     } else if (this.sunstoneTier == 3) {
-                        this.game.time.events.repeat(Phaser.Timer.SECOND, 2, this.callDamage, this, sprite, 'moreburn');
+                        this.game.time.events.repeat(1000, 2, this.callDamage, this, sprite, 'moreburn');
                     }
                     sprite.burn = true;
-                    this.game.time.events.add(Phaser.Timer.SECOND * 3, this.ointment, this, sprite);
+                    this.game.time.events.add(3000, this.ointment, this, sprite);
                 }
                 bullet.kill();
                 break;
@@ -468,11 +489,11 @@ var playState = {
                 if (sprite.frozen == false && sprite.iceStack < 3) {
                     sprite.frozen = true;
                     sprite.iceStack++;
-                    this.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.defrost, this, sprite);
+                    this.game.time.events.add(1500, this.defrost, this, sprite);
                 }
                 if (this.sapphireTier == 3 && Math.random() < 0.25) {
                     sprite.stopped = true;
-                    this.game.time.events.add(Phaser.Timer.SECOND * 1.5, this.defrost, this, sprite);
+                    this.game.time.events.add(1500, this.defrost, this, sprite);
                 }
                 bullet.kill();
                 break;
@@ -858,10 +879,7 @@ var playState = {
                 break;
             case 'magnet':
                 console.log(material.key);
-                this.game.time.events.repeat(1000, 15, this.metals.forEachAlive(this.magnet,this,this.ship,200), this);
-                break;
-            case 'blackhole':
-                console.log(material.key);
+                this.game.time.events.repeat(1000, 15, this.activ_Mag_Effect, this);
                 break;
             case 'transmute':
                 this.transmuteFlag = true;
@@ -872,15 +890,14 @@ var playState = {
                 console.log(material.key);
                 break;
             case 'drone':
+                this.makeDrone(this.ship);
                 console.log(material.key);
                 break;
             case 'invisible':
+                this.enemies.forEachAlive(this.invis,this,this.ship);
                 console.log(material.key);
                 break;
-            case 'bomb':
-                console.log(material.key);
-                break;
-            case 'warp':
+           case 'warp':
                 console.log(material.key);
                 this.ship.x = this.game.world.randomX;
                 this.ship.y = this.game.world.randomY;
@@ -890,6 +907,57 @@ var playState = {
         this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name);
 
         material.kill();
+    },
+
+    activ_Mag_Effect: function(){
+
+        metals.forEachAlive(this.magnet,this,this.ship,200);
+
+
+    },
+
+    makeDrone: function(ship) {
+        this.drone_activ = true;
+        this.drone = new this.Drone(this.game, this.ship.centerX+10, this.ship.y,'ship', 400, 50, this.ship);
+        this.drones = this.game.add.group();
+        this.drones.add(this.drone);
+
+
+    },
+
+    invis: function(sprite,player){
+
+        // so that enemies cannot see or aggro to the player
+        sprite.aggroRange=0;
+        // actually make ship invisible if not already
+
+        player.alpha=0.2;
+
+        //turn off effect after 10 seconds
+        game.time.events.add(10000, this.neginvis, this,sprite,player);
+
+    },
+
+    neginvis: function(sprite,player){
+
+        //turn off invisiblity setting aggro range of all enemies back to 400 and making ship visible again
+        sprite.aggroRange = 400;
+
+        //ship is not already visible
+        player.alpha = 1;
+
+    },
+
+    magnet: function(sprite, ship, distance){
+
+        if(Math.abs(sprite.x-ship.x)<=distance && Math.abs(sprite.y-ship.y)<=distance){
+
+            this.game.physics.arcade.moveToObject(sprite,ship,50);
+
+            sprite.rotation = Math.atan2(ship.y - sprite.y, ship.x - sprite.x);
+
+        }
+
     },
 
     // --- ASTEROIDS
@@ -1067,47 +1135,6 @@ var playState = {
 
     },
 
-    anomalyEffect: function(ship, anomaly) {
-
-        switch (anomaly.key) {
-            case 'infinity':
-
-
-                break;
-            case 'magnet':
-                console.log(anomaly.key + " mag effect");
-
-                break;
-            case 'blackhole':
-                console.log(anomaly.key + " blk effect");
-
-                break;
-            case 'transmute':
-                console.log(anomaly.key + " trans effect");
-
-                break;
-            case 'drone':
-                console.log(anomaly.key + " drone effect");
-
-                break;
-            case 'invisible':
-                console.log(anomaly.key + " invisible effect");
-
-                break;
-            case 'bomb':
-                console.log(anomaly.key + " bomb effect");
-
-                break;
-            case 'warp':
-
-                console.log(anomaly.key + " warp effect");
-                this.ship.x = this.game.world.randomX;
-                this.ship.y = this.game.world.randomY;
-                break;
-        }
-
-    },
-
     // --- COMETS
 
     Comet: function(game, x, y, type, health) {
@@ -1230,6 +1257,19 @@ var playState = {
 
     },
 
+    DroneBullet: function(game, x, y, type) {
+
+        this.game = game;
+
+        Phaser.Sprite.call(this, game, x, y, type);
+
+        this.game.physics.arcade.enable(this);
+        this.anchor.setTo(0.5);
+        this.checkWorldBounds = true;
+        this.outOfBoundsKill = true;
+
+    },
+
     newEnemies: function() {
 
         var a, b, c, d, basic, bruiser, captain, govt;
@@ -1254,6 +1294,34 @@ var playState = {
             this.enemies.add(govt);
             this.enemiesAlive++;
         }
+
+    },
+
+    Drone: function(game, x, y, type, speed, health, player) {
+
+        this.game = game;
+        this.speed = speed;
+        this.health = health;
+        this.player = player;
+        this.burn = false;
+        this.aggroRange = 400;
+        this.minDist = 100;
+        this.shootNow = 0;
+
+        Phaser.Sprite.call(this, game, x, y, type);
+
+        this.game.physics.arcade.enable(this);
+        this.anchor.setTo(0.5);
+        this.body.collideWorldBounds = true;
+        this.body.drag.setTo(10, 10);
+        this.scale.setTo(0.5);
+
+
+
+        this.healthbar = game.make.sprite(-10, -20, 'health');
+        this.healthbar.anchor.setTo(0.5);
+        this.healthbar.scale.setTo(0.5);
+        this.addChild(this.healthbar);
 
     }
 
@@ -1850,13 +1918,15 @@ playState.Anomaly.prototype.spawn = function() {
 
     game.time.events.add(15000, function(){
 
-        var anomalyKey = ['infinity', 'magnet', 'blackhole', 'transmute', 'drone', 'invisible', 'bomb', 'warp'][Math.floor(Math.random() * 8)];
+        var anomalyKey = ['infinity', 'magnet', 'transmute', 'drone', 'invisible', 'warp'][Math.floor(Math.random() * 6)];
         playState.anomaly = new playState.Anomaly(this.game, this.game.world.randomX, this.game.world.randomY, anomalyKey);
         console.log('New anomaly at ' + playState.anomaly.x + ", " + playState.anomaly.y);
         playState.anomalies.add(playState.anomaly);
         playState.anomaly.spawn();
         game.time.events.add(10000, function() {
-            playState.anomaly.kill();}, this);}, this);
+            playState.anomaly.kill();
+            console.log("Line 1903 in spawn function");
+            }, this);}, this);
 
 };
 
@@ -2212,3 +2282,5 @@ playState.Enemy.prototype.dropLoot = function(){
 playState.EnemyBullet.prototype = Object.create(Phaser.Sprite.prototype);
 playState.EnemyBullet.prototype.constructor = playState.EnemyBullet;
 
+playState.Drone.prototype = Object.create(Phaser.Sprite.prototype);
+playState.Drone.prototype.constructor = playState.Drone;
