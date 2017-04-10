@@ -38,7 +38,7 @@ var playState = {
     SHIP_ROCKT_DAM: 20, // Ruby weapon
     SHIP_CRESC_DAM: 10, // sunStone weapon w/o burn
     SHIP_ELECT_DAM: 20, // Topaz weapon
-    SHIP_LEECH_DAM: 5,  // Emerald weapon
+    SHIP_LEECH_DAM: 1,  // Emerald weapon
     SHIP_BLAST_DAM: 1,  // Amethyst weapon
     SHIP_FREZE_DAM: 10, // Sapphire weapon
     SHIP_EXPLD_DAM: 10, // Obsidian weapon
@@ -145,8 +145,8 @@ var playState = {
 
         // --- PLAYER BULLETS
 
-        this.weapons.push(new this.Weapon.Diamond(this.game));
-        this.diamondTier = 1;
+        this.weapons.push(new this.Weapon.Emerald(this.game));
+        this.emeraldTier = 1;
 
         // Create game groups
         this.asteroids = this.game.add.group();
@@ -339,7 +339,7 @@ var playState = {
         this.enemies.forEachAlive(this.bulletCollision, this, this.weapons);
         this.asteroids.forEachAlive(this.bulletCollision, this, this.weapons);
         this.comets.forEachAlive(this.bulletCollision, this, this.weapons);
-        //this.physics.arcade.overlap(this.enemyWeapon, this.ship, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
+        this.physics.arcade.overlap(this.enemyWeapon, this.ship, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
 
         if(this.drone.alive == true){
             this.physics.arcade.overlap(this.enemyWeapon, this.drone, this.callDamage, null, this);
@@ -474,6 +474,9 @@ var playState = {
                 break;
             case 'emeraldb':
                 damage = this.SHIP_LEECH_DAM;
+                if(this.ship.health < 200){
+                    this.leechHealth;
+                }
                 bullet.kill();
                 break;
             case 'amethystb':
@@ -592,6 +595,11 @@ var playState = {
 
         this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name);
 
+    },
+
+    leechHealth: function(){
+            this.ship.health += 10;
+            this.healthbar.scale.x += .1;
     },
 
     updateBar: function (spritebar, sprite) {
@@ -1622,7 +1630,7 @@ playState.PlayerBullet.prototype.shoot = function(x, y, posVar, speed) {
 
     this.game.physics.arcade.moveToXY(this, x, y, speed);
 
-    if (playState.weapons[playState.currentWeapon].name == 'RUBY' && playState.rubyTier > 1) {
+    if ((playState.weapons[playState.currentWeapon].name == 'RUBY' && playState.rubyTier > 1) || playState.weapons[playState.currentWeapon].name == 'EMERALD') {
         playState.enemies.forEachAlive(function(sprite) {
 
             if (Phaser.Math.distance(sprite.x, sprite.y, x, y) <= 300) {
@@ -1824,6 +1832,39 @@ playState.Weapon.Amethyst.prototype = Object.create(Phaser.Group.prototype);
 playState.Weapon.Amethyst.prototype.constructor = playState.Weapon.Amethyst;
 
 playState.Weapon.Amethyst.prototype.shoot = function(ship) {
+
+    if (this.game.time.time < this.shootNow) {
+        return;
+    }
+
+    this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
+
+    this.shootNow = this.game.time.time + this.fireRate;
+
+};
+
+// Emerald weapon
+playState.Weapon.Emerald = function(game) {
+
+    var i;
+    Phaser.Group.call(this, game, game.world, 'EMERALD', false, true, Phaser.Physics.ARCADE);
+
+    this.shootNow = 0;
+    this.bulletSpeed = 700;
+    this.fireRate = 5;
+
+    for (i = 0; i < 350; i++) {
+        this.add(new playState.PlayerBullet(game, 'emeraldb'), true);
+    }
+
+    return this;
+
+};
+
+playState.Weapon.Emerald.prototype = Object.create(Phaser.Group.prototype);
+playState.Weapon.Emerald.prototype.constructor = playState.Weapon.Emerald;
+
+playState.Weapon.Emerald.prototype.shoot = function(ship) {
 
     if (this.game.time.time < this.shootNow) {
         return;
