@@ -47,6 +47,7 @@ var loadState = {
         game.load.image('sunstoneb', 'assets/sunsbull.png');
         game.load.image('topaz', 'assets/diamond.png');
         game.load.image('emerald', 'assets/diamond.png');
+        game.load.image('emeraldb', 'assets/emebull.png');
         game.load.image('sapphire', 'assets/diamond.png');
         game.load.image('sapphireb', 'assets/sappbull.png');
         game.load.image('amethyst', 'assets/diamond.png');
