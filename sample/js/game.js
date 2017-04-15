@@ -13,6 +13,10 @@ game.state.add('load', loadState);
 game.state.add('menu', menuState);
 game.state.add('settings', settingsState);
 game.state.add('play', playState);
+game.state.add('credits', creditState);
+game.state.add('store', storeState);
+game.state.add('help', helpState);
+game.state.add('gameMode', gameModeState);
 
 // Start boot state
 game.state.start('boot');
