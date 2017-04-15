@@ -105,6 +105,7 @@ var playState = {
         this.music = game.add.audio('jupiter');
         this.music.loop = true;
         this.music.play();
+
         this.moneySound = game.add.audio('money');
         this.deadSound = game.add.audio('dead');
 
@@ -145,8 +146,8 @@ var playState = {
 
         // --- PLAYER BULLETS
 
-        this.weapons.push(new this.Weapon.Emerald(this.game));
-        this.emeraldTier = 1;
+        this.weapons.push(new this.Weapon.Diamond(this.game));
+        this.diamondTier = 3;
 
         // Create game groups
         this.asteroids = this.game.add.group();
@@ -207,17 +208,13 @@ var playState = {
 
         // --- SCORE
         game.global.score = 0;
-        if (this.DUST_COLLECTED < 210) {
+
             this.scoreText = game.add.text(32, 32, 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name, {
                 fontSize: '32px',
-                fill: "#FFF"
+                fill: "#FFF",
+                font: 'Josefin Slab'
             });
-        } else {
-            this.scoreText = game.add.text(32, 32, 'SCORE: ' + game.global.score + '   DUST:  INFINITE' + '   WEAPON: ' + this.weapons[this.currentWeapon].name, {
-                fontSize: '32px',
-                fill: "#FFF"
-            });
-        }
+
         this.scoreText.fixedToCamera = true;
 
         // Spawn an anomaly after 15 seconds
@@ -234,7 +231,7 @@ var playState = {
 
         if (!game.device.desktop){
             this.rotateLabel = game.add.text(game.widows/2, game.height/2, '',
-                {font: '30px Arial', fill: '#fff', backgroundColor: '#000'});
+                {font: '30px Josefin Slab', fill: '#fff', backgroundColor: '#000'});
             this.rotateLabel.anchor.setTo(.5,.5);
 
             game.scale.onOrientationChange.add(this.orientationChange, this);
