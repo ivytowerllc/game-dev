@@ -14,40 +14,40 @@ var menuState = {
         this.music.play();
 
         // Display the name of the game
-        var nameLabel = game.add.text(game.width/2, -50, "Crystal Hunter", {font: '50px Arial', fill: '#ffffff'});
+        var nameLabel = game.add.text(game.width/2, -50, "Crystal Hunter", {font: '50px Josefin Slab', fill: '#ffffff'});
         nameLabel.anchor.setTo(.5,.5);
-        var nameTween = game.add.tween(nameLabel).to({y: 90}, 1000).easing(Phaser.Easing.Bounce.Out).start();
+        /** Name Tween **/ game.add.tween(nameLabel).to({y: 90}, 1000).easing(Phaser.Easing.Bounce.Out).start();
 
         // Show the score at the center of the screen
-        var scoreLabel = game.add.text(game.width/2, game.height/3, 'Score: ' + game.global.score, {font: '25px Arial', fill: '#ffffff'});
+        var scoreLabel = game.add.text(game.width/2, game.height/3, 'Score: ' + game.global.score, {font: '25px Josefin Slab', fill: '#ffffff'});
         scoreLabel.anchor.setTo(.5,.5);
 
         this.nickname = game.add.inputField(game.width/2, game.height/2, {
-            width: 300,
-            height: 30,
-            font: '24px Arial',
+            font: '24px Josefin Slab',
             placeholder: 'Nickname',
+            placeholderColor: '#FFF',
             type: PhaserInput.InputType.text
             });
         this.nickname.anchor.setTo(.5,.5);
         this.nickname.focusOutOnEnter = true;
 
-        this.startButton = game.add.button(game.width/2, game.height/1.8, 'startButton', this.start, this);
-        this.startButton.scale.setTo(.1);
-        this.startButton.anchor.setTo(.5,.5);
-        this.startButton.width = 100;
+        this.guestStartButton = game.add.button(game.width/2.2, game.height/1.7, 'blueButton', this.start, this);
+        this.guestStartButton.anchor.setTo(.5,.5);
 
-        this.settingsButton = game.add.button(50, 50, 'settingsButton', this.settings, this);
-        this.settingsButton.scale.setTo(.1);
+        this.loginStartButton = game.add.button(game.width/1.85, game.height/1.7, 'limeButton', this.start, this);
+        this.loginStartButton.anchor.setTo(.5,.5);
+
+        this.settingsButton = game.add.button(50, 50, 'greenButton', this.settings, this);
         this.settingsButton.anchor.setTo(.5,.5);
 
+        this.storeButton = game.add.button(50, game.height/2, 'purpleButton', this.store, this);
+        this.storeButton.anchor.setTo(.5,.5);
 
-        // Explain how to start the game
-        var text = "Click button to start!";
+        this.gameModeButton = game.add.button(game.width*.95, game.height/2, 'skyButton',  this.gameMode, this);
+        this.gameModeButton.anchor.setTo(.5,.5);
 
-        var startLabel = game.add.text(game.width/2, game.height-80, text, {font: '25px Arial', fill: '#ffffff'});
-        startLabel.anchor.setTo(.5,.5);
-        var startTween = game.add.tween(startLabel).to({angle: -2}, 500).to({angle: 2}, 1000).to({angle: 0}, 500).loop().start();
+        this.helpButton = game.add.button(game.width*.95, 50, 'pinkButton', this.help, this);
+        this.helpButton.anchor.setTo(.5,.5);
 
         // Create a new Phaser keyboard variable; the up arrow key
         // When pressed, call 'start'
@@ -75,6 +75,21 @@ var menuState = {
     settings: function(){
         this.music.stop();
         game.state.start('settings');
+    },
+
+    store: function(){
+        this.music.stop();
+        game.state.start('store');
+    },
+
+    help: function(){
+        this.music.stop();
+        game.state.start('help');
+    },
+
+    gameMode: function(){
+        this.music.stop();
+        game.state.start('gameMode');
     }
 
 };
