@@ -89,13 +89,23 @@ var loadState = {
         game.load.image('comet','assets/comet.png');
         game.load.image('particle1','assets/p1.png');
         game.load.image('particle2','assets/p2.png');
-        game.load.image('startButton', 'assets/startButton.png');
-        game.load.image('settingsButton', 'assets/settingsButton.png');
-        game.load.image('menuButton', 'assets/menuButton.png');
+        game.load.image('blueButton', 'assets/blueButton.png');
+        game.load.image('greenButton', 'assets/greenButton.png');
+        game.load.image('redButton', 'assets/redButton.png');
+        game.load.image('purpleButton', 'assets/purpleButton.png');
+        game.load.image('pinkButton', 'assets/pinkButton.png');
+        game.load.image('skyButton', 'assets/skyButton.png');
+        game.load.image('yellowButton', 'assets/yellowButton.png');
+        game.load.image('tealButton', 'assets/tealButton.png');
+        game.load.image('limeButton', 'assets/limeButton.png');
 
         // Background music
         game.load.audio('earthMoon', 'assets/earthMoon.wav');
         game.load.audio('asteroidMenu', 'assets/asteroidMenu.wav');
+        game.load.audio('pluto', 'assets/pluto.wav');
+        game.load.audio('jupiter', 'assets/jupiter.wav');
+        game.load.audio('mars', 'assets/mars.wav');
+        game.load.audio('eris', 'assets/eris.wav');
         game.load.audio('dead', 'assets/dead.wav');
         game.load.audio('money', 'assets/money.wav');
         game.load.audio('diamondShot', 'assets/diamond.wav');
@@ -103,7 +113,6 @@ var loadState = {
         game.load.audio('bruiserShot', 'assets/bruiserShot.wav');
         game.load.audio('captainShot', 'assets/captainShot.wav');
         game.load.audio('basicShot', 'assets/basicShot.wav');
-        game.load.audio('jupiter', 'assets/jupiter.wav');
         game.load.audio('dust', 'assets/dust.wav');
         game.load.audio('bruiserShot', 'assets/bruiserShot.wav');
     },
