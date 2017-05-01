@@ -3,7 +3,7 @@ var loadState = {
     preload: function(){
 
         // Add loading text
-        var loadingLabel = game.add.text(game.width/2, 150, "loading...", {font: '30px Arial', fill: '#ffffff'});
+        var loadingLabel = game.add.text(game.width/2, 150, "loading...", {font: '30px Josefin Slab', fill: '#ffffff'});
         loadingLabel.anchor.setTo(0.5,0.5);
 
         // Display progress bar
@@ -78,7 +78,7 @@ var loadState = {
         game.load.image('bigDust', 'assets/bigdust.png');
         game.load.image('health','assets/bar.png');
         game.load.image('shield','assets/bar2.png');
-        game.load.image('drone','assets/anomaly.png');
+        game.load.image('droneAnom','assets/anomaly.png');
         game.load.image('magnet','assets/anomaly.png');
         game.load.image('blackhole','assets/anomaly.png');
         game.load.image('transmute','assets/anomaly.png');
@@ -98,6 +98,10 @@ var loadState = {
         game.load.image('yellowButton', 'assets/yellowButton.png');
         game.load.image('tealButton', 'assets/tealButton.png');
         game.load.image('limeButton', 'assets/limeButton.png');
+        game.load.image('joyHead', 'assets/joyhead.png');
+        game.load.image('joyStick', 'assets/joystick.png');
+        game.load.image('drone', 'assets/drone.png');
+
 
         // Background music
         game.load.audio('earthMoon', 'assets/earthMoon.wav');
