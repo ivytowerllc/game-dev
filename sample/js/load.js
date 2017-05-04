@@ -110,7 +110,7 @@ var loadState = {
         game.load.audio('jupiter', 'assets/jupiter.wav');
         game.load.audio('mars', 'assets/mars.wav');
         game.load.audio('eris', 'assets/eris.wav');
-        game.load.audio('dead', 'assets/dead.wav');
+        game.load.audio('death', 'assets/death.wav');
         game.load.audio('money', 'assets/money.wav');
         game.load.audio('diamondShot', 'assets/diamond.wav');
         game.load.audio('engineIdle', 'assets/engineIdle.wav');
@@ -119,6 +119,9 @@ var loadState = {
         game.load.audio('basicShot', 'assets/basicShot.wav');
         game.load.audio('dust', 'assets/dust.wav');
         game.load.audio('bruiserShot', 'assets/bruiserShot.wav');
+        game.load.audio('amethystShot', 'assets/amethyst.wav');
+        game.load.audio('crystalSound', 'assets/crystal.wav');
+        game.load.audio('topazShot', 'assets/topaz.wav');
     },
 
     create: function(){

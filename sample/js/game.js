@@ -3,7 +3,10 @@ var game = new Phaser.Game(window.innerWidth, window.innerHeight);
 // Define global variables
 game.global = {
 
-    score: 0
+    score: 0,
+    crystalsCollected: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+    totalDustAccumulated: 0,
+    metalMoney: 0
 
 };
 
