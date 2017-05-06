@@ -122,6 +122,8 @@ var loadState = {
         game.load.audio('amethystShot', 'assets/amethyst.wav');
         game.load.audio('crystalSound', 'assets/crystal.wav');
         game.load.audio('topazShot', 'assets/topaz.wav');
+        game.load.audio('bloost', 'assets/bloost.wav');
+        game.load.audio('metal', 'assets/metal.wav');
     },
 
     create: function(){
