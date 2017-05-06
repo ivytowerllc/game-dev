@@ -70,6 +70,9 @@ var playState = {
     BIG_AST_SPEED: 50,
     MED_AST_SPEED: 75,
     SML_AST_SPEED: 100,
+    SML_AST_DMG: 5,
+    MED_AST_DMG: 15,
+    BIG_AST_DMG: 30,
 
 // Dust variables
     DUST_COLLECTED: 0,
@@ -129,7 +132,7 @@ var playState = {
         //this.music.play();
 
         // General Sound Effects
-        this.moneySound = game.add.audio('money');
+        this.metalSound = game.add.audio('metal');
         this.deathSound = game.add.audio('death');
         this.crystalSound = game.add.audio('crystalSound');
 
@@ -137,12 +140,16 @@ var playState = {
         this.diamondShot = game.add.audio('diamondShot');
         this.diamondShot.volume = 0.3;
         this.amethystShot = game.add.audio('amethystShot');
-        this.amethystShot.allowMultiple = false;
         this.topazShot = game.add.audio('topazShot');
         this.engineIdle = game.add.audio('engineIdle');
         this.captainShot = game.add.audio('captainShot');
         this.basicShot = game.add.audio('basicShot');
         this.bruiserShot = game.add.audio('bruiserShot');
+        this.bloost = game.add.audio('bloost');
+
+        this.bloost.allowMultiple = false;
+        this.amethystShot.allowMultiple = false;
+        this.engineIdle.allowMultiple = false;
 
         // Add moon for reference point
         this.moon = game.add.sprite(game.world.centerX, game.world.centerY, 'moon');
@@ -200,7 +207,7 @@ var playState = {
         // --- ASTEROID SPAWNS
 
 
-        for (a = 0; a < 10; a++) {
+        for (a = 0; a < 20; a++) {
             astKey = ['bigBlueAst', 'bigRedAst', 'bigGreyAst', 'bigWhiteAst', 'bigBrownAst'][Math.floor(Math.random() * 5)];
             ast = new playState.Asteroid(this.game, this.game.world.randomX, this.game.world.randomY, astKey, this.BIG_AST_SCALE, this.BIG_AST_HEALTH, this.BIG_AST_SPEED);
             ast.body.bounce.set(0.8);
@@ -249,7 +256,12 @@ var playState = {
         // --- SCORE
         game.global.score = 0;
 
-        this.scoreText = game.add.text(32, 32, 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier, {
+        this.scoreText = game.add.text(32, 32, 'SCORE: '
+            + game.global.score
+            + '   DUST: ' + this.DUST_COLLECTED
+            + '   WEAPON: ' + this.weapons[this.currentWeapon].name
+            + '   TIER: ' + this.tier
+            + '   HEALTH: ' + this.ship.health, {
             fontSize: '32px',
             fill: "#FFF",
             font: 'Josefin Slab'
@@ -348,7 +360,7 @@ var playState = {
                 this.ship.body.drag.y = 700;
 
                 if(!this.engineIdle.isPlaying){
-                    this.engineIdle.loopFull(1);
+                    this.engineIdle.play();
                 }
             }
         }
@@ -410,6 +422,10 @@ var playState = {
 
         if (boost.isDown && this.DUST_COLLECTED > 0) {
 
+            if(!this.bloost.isPlaying){
+                this.bloost.play();
+            }
+
             this.dustBurnt += 1;
             this.DUST_COLLECTED -= 1;
 
@@ -433,6 +449,8 @@ var playState = {
 
         } else {
 
+            this.bloost.pause();
+
             if (this.DUST_COLLECTED > 205){
 
                 this.SHIP_SPEED = 300;
@@ -446,11 +464,19 @@ var playState = {
 
         if(this.DUST_COLLECTED > 205){
 
-            this.scoreText.setText('SCORE: ' + game.global.score + '   DUST: INFINITE' + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier);
+            this.scoreText.setText('SCORE: ' + game.global.score
+                + '   DUST: INFINITE'
+                + '   WEAPON: ' + this.weapons[this.currentWeapon].name
+                + '   TIER: ' + this.tier
+                + '   HEALTH: ' + this.ship.health);
 
         } else {
 
-            this.scoreText.setText('SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier);
+            this.scoreText.setText('SCORE: ' + game.global.score
+                + '   DUST: ' + this.DUST_COLLECTED
+                + '   WEAPON: ' + this.weapons[this.currentWeapon].name
+                + '   TIER: ' + this.tier
+                + '   HEALTH: ' + this.ship.health);
 
         }
         // --- OBJECT COLLISION
@@ -487,10 +513,28 @@ var playState = {
         }
 
         this.game.physics.arcade.collide( this.asteroids,  this.asteroids );
-        this.game.physics.arcade.collide(this.ship, this.asteroids);
         this.game.physics.arcade.collide(this.asteroids, this.enemies);
 
-        this.physics.arcade.overlap(this.ship, this.asteroids, function(){this.ship.health -= 20}, null, this);
+        this.game.physics.arcade.collide(this.ship, this.asteroids, function(){
+
+            var damage;
+
+                if(playState.DUST_COLLECTED < 205){
+
+                    damage = 20;
+                    playState.healthBar.scale.x -= damage/playState.SHIP_HEALTH;
+                    playState.ship.health -= damage;
+
+                    playState.scoreText.setText(
+                        'SCORE: ' + game.global.score
+                        + '   DUST: ' + playState.DUST_COLLECTED
+                        + '   WEAPON: ' + playState.weapons[playState.currentWeapon].name
+                        + '   TIER: ' + playState.tier
+                        + '   HEALTH: ' + playState.ship.health);
+
+
+            }
+        });
 
         if(this.ship.health <= 0){
 
@@ -502,6 +546,14 @@ var playState = {
             this.newAsteroids();
 
         }
+    },
+
+    soundsOff: function(){
+        this.amethystShot.pause();
+        this.music.pause();
+        this.diamondShot.pause();
+        this.engineIdle.pause();
+        this.topazShot.pause();
     },
 
     scoutMetals: function (drone, ship, metalsprite) {
@@ -526,9 +578,7 @@ var playState = {
         game.state.start('menu');
 
         // Stop music when player dies
-        this.music.stop();
-        this.diamondShot.pause();
-        this.engineIdle.pause();
+        this.soundsOff();
     },
 
     orientationChange: function(){
@@ -537,7 +587,6 @@ var playState = {
         // This should be removed before launch as a user's game can't pause in a multiplayer match
         if (game.scale.isPortrait){
             game.paused = true;
-            this.rotateLabel.text = 'Rotate your device to landscape';
 
         } else {
 
@@ -566,7 +615,7 @@ var playState = {
 
         this.weapons[this.currentWeapon].visible = true;
 
-        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier);
+        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.ship.health);
 
     },
 
@@ -736,7 +785,7 @@ var playState = {
             }
         }
 
-        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier);
+        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.ship.health);
 
     },
 
@@ -940,7 +989,7 @@ var playState = {
             }
 
 
-            this.physics.arcade.overlap(ship, this.metals.children.indexOf(material), this.moneySound.play(), null, this);
+            this.physics.arcade.overlap(ship, this.metals.children.indexOf(material), this.metalSound.play(), null, this);
         }
 
         // Crystal pickup
@@ -1047,7 +1096,6 @@ var playState = {
         // Anomaly pickup
         switch (material.key) {
             case 'infinity':
-                console.log(material.key);
                 var savedDust = this.DUST_COLLECTED;
                 this.DUST_COLLECTED = 9999;
                 game.time.events.add(10000, function(){
@@ -1055,7 +1103,6 @@ var playState = {
                 }, this);
                 break;
             case 'magnet':
-                console.log(material.key);
                 this.game.time.events.repeat(1000, 15, this.activ_Mag_Effect, this);
                 break;
             case 'transmute':
@@ -1064,24 +1111,26 @@ var playState = {
                     console.log("Finished Transmuting");
                     this.transmuteFlag = false;
                 }, this);
-                console.log(material.key);
                 break;
             case 'droneAnom':
                 this.makeDrone(this.ship);
-                console.log(material.key);
                 break;
             case 'invisible':
                 this.enemies.forEachAlive(this.invis,this,this.ship);
-                console.log(material.key);
                 break;
             case 'warp':
-                console.log(material.key);
                 this.ship.x = this.game.world.randomX;
                 this.ship.y = this.game.world.randomY;
+
+                if(this.drone.alive){
+                    this.drone.x = this.ship.x;
+                    this.drone.y = this.ship.y;
+                }
+
                 break;
         }
 
-        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier);
+        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.DUST_COLLECTED + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.ship.health);
 
         material.kill();
     },
