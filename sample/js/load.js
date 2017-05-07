@@ -101,6 +101,7 @@ var loadState = {
         game.load.image('joyHead', 'assets/joyhead.png');
         game.load.image('joyStick', 'assets/joystick.png');
         game.load.image('drone', 'assets/drone.png');
+        game.load.image('continue', 'assets/continue.png');
 
 
         // Background music
