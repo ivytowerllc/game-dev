@@ -2,6 +2,19 @@ var menuState = {
 
     create: function(){
 
+        // If the device loading the game is a mobile device
+        if(!game.device.desktop){
+            // Set the type of scaling to show all
+            game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+
+            // Set min/max height/width of the game
+            game.scale.setMinMax(game.width/2, game.height/2, game.width*2, game.height*2);
+
+            // Center the game on the screen
+            game.scale.pageAlignHorizontally = true;
+            game.scale.pageAlignVertically = true;
+        }
+
         // Add background image
         this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'bg');
 
@@ -9,7 +22,7 @@ var menuState = {
         this.game.add.plugin(PhaserInput.Plugin);
 
         // Background music
-        this.music = game.add.audio('asteroidMenu');
+        this.music = game.add.audio('menu');
         this.music.loop = true;
         this.music.play();
 
@@ -59,9 +72,9 @@ var menuState = {
             font: '20px Josefin Slab',
             placeholder: 'Nickname',
             placeholderColor: '#FFFFFF',
-            type: PhaserInput.InputType.text
+            type: PhaserInput.InputType.text,
+            max: 15
             });
-        this.nickname.focusOutOnEnter = true;
         this.nickname.height = 25;
         this.nickname.width = 250;
         this.nickname.startFocus();
