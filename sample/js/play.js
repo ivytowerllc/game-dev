@@ -34,9 +34,11 @@ var playState = {
     deadMenu: "",
 yes: "",
 no: "",
+    player: "",
+    players: "",
 
 // Player variables
-    SHIP_SPEED: 300,
+    SHIP_SPEED: 600,
     MAX_HEALTH: 200,
 
 // Bullet damages (Tier 1)
@@ -104,11 +106,6 @@ no: "",
         /** DEBUG FPS **/
         game.time.advancedTiming = true;
 
-        // Go full screen on mobile devices
-        if (!game.device.desktop){
-            game.input.onDown.add(function goFull() {
-                game.scale.startFullScreen(false);}, this);
-        }
         game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         game.scale.fullScreenScaleMode = Phaser.ScaleManager.EXACT_FIT;
 
@@ -134,8 +131,11 @@ no: "",
 
         // General Sound Effects
         this.metalSound = game.add.audio('metal');
+        this.metalSound.volume = 10;
         this.deathSound = game.add.audio('death');
+        this.deathSound.volume = 5;
         this.crystalSound = game.add.audio('crystalSound');
+        this.crystalSound.volume = 5;
 
         // Ship Sound Effects
         this.diamondShot = game.add.audio('diamondShot');
@@ -152,20 +152,34 @@ no: "",
         this.amethystShot.allowMultiple = false;
         this.engineIdle.allowMultiple = false;
 
+        this.powerup = this.game.add.audio('powerup');
+        this.powerup.volume = 10;
+
         // Add moon for reference point
         this.moon = game.add.sprite(game.world.centerX, game.world.centerY, 'moon');
         this.moon.anchor.setTo(0.5);
+        this.moon.scale.setTo(2);
+
+        // Create game groups
+        this.asteroids = this.game.add.group();
+        this.comets = this.game.add.group();
+        this.metals = this.game.add.group();
+        this.crystals = this.game.add.group();
+        this.dusts = this.game.add.group();
+        this.anomalies = this.game.add.group();
+        this.players = this.game.add.group();
 
         // --- PLAYER SHIP
 
-        // Adds player ship in center
-        this.ship = game.add.sprite(game.world.centerX, game.world.centerY, 'ship');
-        this.ship.anchor.setTo(0.5);
-        this.ship.angle = -90; // Points the ship up
-        this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
-        this.ship.health = this.MAX_HEALTH;
+        // Adds player ship to the game
+        this.player = new this.Player(this.game, this.game.world.randomX, this.game.world.randomY, 'ship', this.nickname);
+        this.players.add(this.player);
 
-        this.deadMenu = game.add.sprite(this.ship.x, this.ship.y, 'continue');
+        /**this.ship.angle = -90; // Points the ship up
+        this.game.physics.enable(this.ship, Phaser.Physics.ARCADE);
+        this.ship.health = this.MAX_HEALTH;**/
+
+        this.deadMenu = game.add.sprite(this.player.x, this.player.y, 'continue');
         this.deadMenu.anchor.setTo(.5);
         this.yes = game.add.button(this.deadMenu.width*.1, this.deadMenu.height*.4, 'greenButton', this.continue, this);
         this.no = game.add.button(this.deadMenu.width*.3, this.deadMenu.height*.4, 'redButton', this.quit, this);
@@ -175,15 +189,14 @@ no: "",
         this.deadMenu.addChild(this.no);
 
         this.deadMenu.kill();
-
-        // Creates ship healthBar
+        /** Creates ship healthBar
         this.healthBar = this.game.add.sprite(this.ship.centerX, this.ship.y + 10, 'health');
         this.playerName = this.game.add.text(this.ship.centerX, this.ship.y - 5, this.nickname, {font: '12px Josefin Slab', fill: '#FFFFFF'});
 
         // Creates ship shield
         this.shield = this.game.add.sprite(this.ship.centerX, this.ship.y - 10, 'shield');
         this.shield.scale.y = 0.5;
-        this.shield.scale.x = 0.0;
+        this.shield.scale.x = 0.0;**/
 
         // Creates joystick for ship controls
         //this.joyStick = this.game.add.sprite(this.game.world.height*.9, this.game.world.width*.1, 'joyStick');
@@ -194,11 +207,9 @@ no: "",
 
         //this.joyControls = new Phaser.Pointer(this.game, this.game.input.pointer1 , Phaser.PointerMode.CONTACT);
 
-        // with world boundaries
-        this.ship.body.collideWorldBounds = true;
 
         // Camera follows ship
-        this.game.camera.follow(this.ship);
+        this.game.camera.follow(this.player);
 
         // --- PLAYER BULLETS
 
@@ -208,13 +219,9 @@ no: "",
 
         this.droneWeapons.push(new this.Weapon.DroneWeapon(this.game));
 
-        // Create game groups
-        this.asteroids = this.game.add.group();
-        this.comets = this.game.add.group();
-        this.metals = this.game.add.group();
-        this.crystals = this.game.add.group();
-        this.dusts = this.game.add.group();
-        this.anomalies = this.game.add.group();
+
+
+        // Create player
 
         // --- ASTEROID SPAWNS
 
@@ -235,28 +242,28 @@ no: "",
         this.enemies.enableBody = true;
 
         for (b = 0; b < 10; b++) {
-            basic = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.ship);
+            basic = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'basic', this.BASIC_SPEED, this.BASIC_HEALTH, this.player);
             this.enemies.add(basic);
             this.enemiesAlive++;
         }
 
         // Add bruiser class enemies
         for (c = 0; c < 5; c++) {
-            bruiser = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.ship);
+            bruiser = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'bruiser', this.BRUISER_SPEED, this.BRUISER_HEALTH, this.player);
             this.enemies.add(bruiser);
             this.enemiesAlive++;
         }
 
         // Add captain class enemies
         /**for (d = 0; d < 1; d++) {
-            captain = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.ship);
+            captain = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'captain', this.CAPTAIN_SPEED, this.CAPTAIN_HEALTH, this.player);
             this.enemies.add(captain);
             this.enemiesAlive++;
         }**/
 
         // Add government enemies
         for (e = 0; e < 10; e++) {
-            govt = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.ship);
+            govt = new this.Enemy(this.game, this.game.world.randomX, this.game.world.randomY, 'govt', this.GOVT_SPEED, this.GOVT_HEALTH, this.player);
             this.enemies.add(govt);
             this.enemiesAlive++;
         }
@@ -272,7 +279,7 @@ no: "",
             + '   DUST: ' + this.dustCollected
             + '   WEAPON: ' + this.weapons[this.currentWeapon].name
             + '   TIER: ' + this.tier
-            + '   HEALTH: ' + this.ship.health, {
+            + '   HEALTH: ' + this.player.health, {
             fontSize: '32px',
             fill: "#FFF",
             font: 'Josefin Slab'
@@ -292,6 +299,17 @@ no: "",
         this.game.time.events.add(15000, this.newComet, this);
 
         if (!game.device.desktop){
+
+            // Set the type of scaling to show all
+            game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+
+            // Set min/max height/width of the game
+            game.scale.setMinMax(game.width/2, game.height/2, game.width*2, game.height*2);
+
+            // Center the game on the screen
+            game.scale.pageAlignHorizontally = true;
+            game.scale.pageAlignVertically = true;
+
             this.rotateLabel = game.add.text(game.widows/2, game.height/2, '',
                 {font: '30px Josefin Slab', fill: '#fff', backgroundColor: '#000'});
             this.rotateLabel.anchor.setTo(.5,.5);
@@ -300,6 +318,17 @@ no: "",
 
 
             this.orientationChange();
+        }
+
+        // Go full screen on mobile devices
+        if (!game.device.desktop){
+            this.moveJoystick = this.game.add.sprite(100, 150, 'blueButton');
+            this.shootButton = this.game.add.button(500, 150, 'redButton', this.mobileShoot, this);
+            this.changeWeapButton = this.game.add.button(500, 200, 'greenButton', this.changeWeapon, this);
+            this.moveJoystickfixedToCamera = true;
+            this.shootButtonfixedToCamera = true;
+            this.changeWeapButtonfixedToCamera = true;
+
         }
 
     },
@@ -346,7 +375,7 @@ no: "",
 
         }
 
-        // Update health bar
+        /** Update health bar
         this.updateBar(this.healthBar, this.ship);
         this.updateBar(this.shield, this.ship);
 
@@ -374,14 +403,14 @@ no: "",
                     this.engineIdle.play();
                 }
             }
-        }
+        }**/
 
 
 
         // --- FIRE WEAPON
 
         // Fires with mouse click
-        if (this.game.input.activePointer.isDown && this.ship.alive) {
+        /**if (this.game.input.activePointer.isDown && this.ship.alive) {
             if (this.game.physics.arcade.distanceToPointer(this.ship) > 50) {
                 this.game.physics.arcade.moveToPointer(this.ship, 125);
             }
@@ -421,7 +450,7 @@ no: "",
             }
         } else {
             this.amethystShot.pause();
-        }
+        } **/
 
 
         changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
@@ -442,21 +471,21 @@ no: "",
 
             if (this.dustBurnt >= 6) {
 
-                this.metal = new this.Metal(this.game, this.ship.previousPosition.x, this.ship.previousPosition.y, 'C');
+                this.metal = new this.Metal(this.game, this.player.previousPosition.x, this.player.previousPosition.y, 'C');
                 this.metals.add(this.metal);
                 this.dustBurnt = 0;
 
             }
 
-            this.shield.scale.x -= .0025;
+            this.player.shield.scale.x -= .0025;
 
             if (this.dustCollected == 0) {
 
-                this.shield.scale.x = 0;
+                this.player.shield.scale.x = 0;
 
             }
 
-            this.SHIP_SPEED = 600;
+            this.SHIP_SPEED = 900;
 
         } else {
 
@@ -464,11 +493,11 @@ no: "",
 
             if (this.dustCollected > 205){
 
-                this.SHIP_SPEED = 300;
+                this.SHIP_SPEED = 600;
 
             } else {
 
-                this.SHIP_SPEED = 300 - (this.dustCollected / 2);
+                this.SHIP_SPEED = 600 - (this.dustCollected / 2);
 
             }
         }
@@ -479,7 +508,7 @@ no: "",
                 + '   DUST: INFINITE'
                 + '   WEAPON: ' + this.weapons[this.currentWeapon].name
                 + '   TIER: ' + this.tier
-                + '   HEALTH: ' + this.ship.health);
+                + '   HEALTH: ' + this.player.health);
 
         } else {
 
@@ -487,7 +516,7 @@ no: "",
                 + '   DUST: ' + this.dustCollected
                 + '   WEAPON: ' + this.weapons[this.currentWeapon].name
                 + '   TIER: ' + this.tier
-                + '   HEALTH: ' + this.ship.health);
+                + '   HEALTH: ' + this.player.health);
 
         }
         // --- OBJECT COLLISION
@@ -496,7 +525,7 @@ no: "",
         this.asteroids.forEachAlive(this.bulletCollision, this, this.weapons);
         this.comets.forEachAlive(this.bulletCollision, this, this.weapons);
 
-        this.physics.arcade.overlap(this.enemyWeapon, this.ship, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
+        this.physics.arcade.overlap(this.enemyWeapon, this.player, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
 
         if(this.drone.alive){
             this.physics.arcade.overlap(this.enemyWeapon, this.drone, this.callDamage, null, this);
@@ -504,7 +533,7 @@ no: "",
             this.enemies.forEachAlive(this.bulletCollision, this, this.droneWeapons);
             this.asteroids.forEachAlive(this.bulletCollision, this, this.droneWeapons);
             this.comets.forEachAlive(this.bulletCollision, this, this.droneWeapons);
-            this.scoutMetals(this.drone, this.ship, this.metals);
+            this.scoutMetals(this.drone, this.player, this.metals);
             this.drone.rotation = this.game.physics.arcade.angleToPointer(this.drone);
 
             if (this.game.input.activePointer.isDown) {
@@ -514,48 +543,50 @@ no: "",
             }
         }
 
-        if (this.ship.alive) {
+        if (this.player.alive) {
 
-            this.physics.arcade.overlap(this.ship, this.metals, this.collectMaterial, null, this);
-            this.physics.arcade.overlap(this.ship, this.crystals, this.collectMaterial, null, this);
-            this.physics.arcade.overlap(this.ship, this.dusts, this.collectMaterial, null, this);
-            this.physics.arcade.overlap(this.ship, this.anomalies, this.collectMaterial, null, this);
+            this.physics.arcade.overlap(this.player, this.metals, this.collectMaterial, null, this);
+            this.physics.arcade.overlap(this.player, this.crystals, this.collectMaterial, null, this);
+            this.physics.arcade.overlap(this.player, this.dusts, this.collectMaterial, null, this);
+            this.physics.arcade.overlap(this.player, this.anomalies, this.collectMaterial, null, this);
 
         }
 
         this.game.physics.arcade.collide( this.asteroids,  this.asteroids );
         this.game.physics.arcade.collide(this.asteroids, this.enemies);
 
-        this.game.physics.arcade.collide(this.ship, this.asteroids, function(){
+        this.game.physics.arcade.collide(this.player, this.asteroids, function(){
 
             var damage;
 
             if(playState.dustCollected < 1){
 
                 damage = 20;
-                playState.healthBar.scale.x -= damage/playState.MAX_HEALTH;
-                playState.ship.health -= damage;
+                playState.player.healthBar.scale.x -= damage/this.MAX_HEALTH;
+                playState.player.health -= damage;
 
                 playState.scoreText.setText(
                     'SCORE: ' + game.global.score
                     + '   DUST: ' + playState.dustCollected
                     + '   WEAPON: ' + playState.weapons[playState.currentWeapon].name
                     + '   TIER: ' + playState.tier
-                    + '   HEALTH: ' + playState.ship.health);
-
+                    + '   HEALTH: ' + playState.player.health);
 
             }
         });
 
-        if(this.ship.health <= 0){
+        if(this.player.health <= 0){
 
-            this.deathSound.play();
             this.playerDie();
             this.deadMenu.revive();
-            this.deadMenu.x = this.ship.x;
-            this.deadMenu.y = this.ship.y;
+            this.deadMenu.x = this.player.x;
+            this.deadMenu.y = this.player.y;
 
         }
+    },
+
+    mobileShoot: function () {
+        this.weapons[this.currentWeapon].shoot(this.player)
     },
 
     playerDie: function(){
@@ -569,10 +600,13 @@ no: "",
     continue: function(){
         console.log("CONTINUE");
         this.deadMenu.kill();
-        this.ship.revive();
-        this.ship.health = 200;
-        this.ship.x = this.game.world.randomX;
-        this.ship.y = this.game.world.randomY;
+        this.player.revive();
+        this.player.health = 200;
+        this.player.healthBar.revive();
+        this.player.shield.revive();
+        this.player.healthBar.scale.x = 1;
+        this.player.x = this.game.world.randomX;
+        this.player.y = this.game.world.randomY;
         this.dustCollected = 0;
 
         for(var i = 0; i < this.weapons.length; i++){
@@ -614,7 +648,6 @@ no: "",
             }
 
         }
-        console.log(this.ship.x, + " " + this.ship.y);
     },
 
     quit: function(){
@@ -639,7 +672,7 @@ no: "",
         }else{
             if (this.game.physics.arcade.distanceBetween(drone, ship) > 100)
             //game.physics.arcade.moveToObject(drone, ship, 250);
-                game.physics.arcade.moveToObject(drone, ship, 275);
+                game.physics.arcade.moveToObject(drone, ship, 900);
         }
     },
 
@@ -677,7 +710,7 @@ no: "",
 
         this.weapons[this.currentWeapon].visible = true;
 
-        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.dustCollected + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.ship.health);
+        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.dustCollected + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.player.health);
 
     },
 
@@ -724,7 +757,7 @@ no: "",
                 break;
             case 'emeraldb':
                 damage = this.SHIP_LEECH_DAM;
-                if(this.ship.health < 200){
+                if(this.player.health < 200){
                     this.leechHealth;
                 }
                 bullet.kill();
@@ -779,6 +812,11 @@ no: "",
         }
 
         if (sprite.health <= 0 && sprite.alive) {
+
+
+            if(sprite.key == "ship"){
+                this.deathSound.play();
+            }
             sprite.kill();
 
             if(sprite.key == "drone"){
@@ -813,15 +851,15 @@ no: "",
         } else if (sprite.health > 0) {
             // Dust shield takes damage
             if (sprite.key == 'ship' && this.dustCollected > 0) {
-                this.shield.scale.x -= damage * .0025;
+                this.player.shield.scale.x -= damage * .0025;
                 this.dustCollected -= damage;
                 if (this.dustCollected < 0) {
                     this.dustCollected = 0;
-                    this.shield.scale.x = 0;
+                    this.player.shield.scale.x = 0;
                 }
                 // Player takes damage w/o shield
             } else if (sprite.key == 'ship' && this.dustCollected <= 0) {
-                this.healthBar.scale.x -= damage/this.MAX_HEALTH;
+                this.player.healthBar.scale.x -= damage/this.MAX_HEALTH;
                 sprite.health -= damage;
                 this.dustCollected = 0;
                 // Non-player damage
@@ -850,12 +888,12 @@ no: "",
             + '   DUST: ' + this.dustCollected
             + '   WEAPON: ' + this.weapons[this.currentWeapon].name
             + '   TIER: ' + this.tier
-            + '   HEALTH: ' + this.ship.health);
+            + '   HEALTH: ' + this.player.health);
 
     },
 
     leechHealth: function(){
-        this.ship.health += 10;
+        this.player.health += 10;
         this.healthbar.scale.x += .1;
     },
 
@@ -1142,15 +1180,15 @@ no: "",
         if (this.dustCollected < 200) {
             if (material.key == 'smlDust') {
                 this.dustCollected += 1;
-                this.shield.scale.x += .0025;
+                this.player.shield.scale.x += .0025;
                 game.global.totalDustAccumulated++;
             } else if (material.key == 'medDust') {
                 this.dustCollected += 3;
-                this.shield.scale.x += .0075;
+                this.player.shield.scale.x += .0075;
                 game.global.totalDustAccumulated += 3;
             } else if (material.key == 'bigDust') {
                 this.dustCollected += 6;
-                this.shield.scale.x += .015;
+                this.player.shield.scale.x += .015;
                 game.global.totalDustAccumulated += 6;
             }
         }
@@ -1162,6 +1200,7 @@ no: "",
         switch (material.key) {
 
             case 'infinity':
+                this.powerup.play();
                 var savedDust = this.dustCollected;
                 this.dustCollected = 9999;
                 game.time.events.add(10000, function(){
@@ -1170,10 +1209,12 @@ no: "",
                 break;
 
             case 'magnet':
+                this.powerup.play();
                 this.game.time.events.repeat(1000, 15, this.magnetEffect, this);
                 break;
 
             case 'transmute':
+                this.powerup.play();
                 this.transmuteFlag = true;
                 this.game.time.events.add(15000, function(){
                     console.log("Finished Transmuting");
@@ -1182,38 +1223,87 @@ no: "",
                 break;
 
             case 'droneAnom':
-                this.makeDrone(this.ship);
+                this.powerup.play();
+                this.makeDrone(this.player);
                 break;
 
             case 'invisible':
-                this.enemies.forEachAlive(this.invis,this,this.ship);
+                this.powerup.play();
+                this.enemies.forEachAlive(this.invis,this,this.player);
                 break;
 
             case 'warp':
-                this.ship.x = this.game.world.randomX;
-                this.ship.y = this.game.world.randomY;
+                this.powerup.play();
+                this.player.x = this.game.world.randomX;
+                this.player.y = this.game.world.randomY;
 
                 if(this.drone.alive){
-                    this.drone.x = this.ship.x;
-                    this.drone.y = this.ship.y;
+                    this.drone.x = this.player.x;
+                    this.drone.y = this.player.y;
                 }
 
                 break;
         }
 
-        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.dustCollected + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.ship.health);
+        this.scoreText.setText( 'SCORE: ' + game.global.score + '   DUST: ' + this.dustCollected + '   WEAPON: ' + this.weapons[this.currentWeapon].name + '   TIER: ' + this.tier+ '   HEALTH: ' + this.player.health);
 
         material.kill();
     },
 
+    // --- PLAYER
+
+// Player template with physics and standard variables
+    Player: function(game, x, y, type, name) {
+
+        this.game = game;
+        this.health = playState.MAX_HEALTH;
+        this.frozen = false;
+        this.iceStack = 0;
+        this.stopped = false;
+        this.burn = false;
+        this.shootNow = 0;
+
+        this.angle = -90; // Points the ship up
+        this.game.physics.enable(this, Phaser.Physics.ARCADE);
+
+        Phaser.Sprite.call(this, game, x, y, type);
+
+        this.game.physics.arcade.enable(this);
+        this.anchor.setTo(0.5);
+        this.body.collideWorldBounds = true;
+
+        // Creates ship healthBar
+        this.healthBar = playState.game.add.sprite(this.centerX, this.y + 10, 'health');
+        this.playerName = this.game.add.text(this.centerX, this.y - 5, name, {font: '12px Josefin Slab', fill: '#FFFFFF'});
+
+        // Creates ship shield
+        this.shield = this.game.add.sprite(this.centerX, this.y - 10, 'shield');
+        this.shield.scale.y = 0.5;
+        this.shield.scale.x = 0.0;
+
+        /** Create a timer
+        this.moveTimer = this.game.time.create(false);
+        this.moveTimer.start();
+
+        this.shootTimer = this.game.time.create(false);
+        this.shootTimer.start();
+
+        this.healthBar = game.make.sprite(-10, -20, 'health');
+        this.healthBar.anchor.setTo(0.5);
+        this.addChild(this.healthBar); **/
+
+
+
+    },
+
     magnetEffect: function(){
 
-        this.metals.forEachAlive(this.magnet,this,this.ship,200);
+        this.metals.forEachAlive(this.magnet,this,this.player,200);
 
     },
 
     makeDrone: function(ship) {
-        this.drone_activ = true;
+
         this.drone = new this.Drone(this.game, ship.centerX+10, ship.y, 'drone', 400, 50, ship);
         this.drones = this.game.add.group();
         this.drones.add(this.drone);
@@ -1410,6 +1500,7 @@ no: "",
 
     },
 
+
     // --- CRYSTAL WEAPONS
 
 // Basic constructor
@@ -1521,7 +1612,7 @@ no: "",
         this.game.physics.arcade.enable(this);
         this.anchor.setTo(0.5);
         this.body.collideWorldBounds = true;
-        this.body.drag.setTo(10, 10);
+        this.body.drag.setTo(500, 500);
         this.minMove = 600;
 
         // Create a timer
@@ -1557,19 +1648,6 @@ no: "",
 
     },
 
-    DroneBullet: function(game, x, y, type) {
-
-        this.game = game;
-
-        Phaser.Sprite.call(this, game, x, y, type);
-
-        this.game.physics.arcade.enable(this);
-        this.anchor.setTo(0.5);
-        this.checkWorldBounds = true;
-        this.outOfBoundsKill = true;
-
-    },
-
     Drone: function(game, x, y, type, speed, health, player) {
 
         this.game = game;
@@ -1586,10 +1664,109 @@ no: "",
         this.game.physics.arcade.enable(this);
         this.anchor.setTo(0.5);
         this.body.collideWorldBounds = true;
-        this.body.drag.setTo(10, 10);
+        this.body.drag.setTo(500, 500);
         this.scale.setTo(0.5);
 
-    },
+    }
+
+};
+
+playState.Player.prototype = Object.create(Phaser.Sprite.prototype);
+playState.Player.prototype.constructor = playState.Player;
+
+playState.Player.prototype.update = function() {
+
+    if (playState.game.input.activePointer.isDown && this.alive) {
+        if (playState.game.physics.arcade.distanceToPointer(this) > 50) {
+            playState.game.physics.arcade.moveToPointer(this, 125);
+        }
+        playState.weapons[playState.currentWeapon].shoot(this);
+
+        switch(playState.weapons[playState.currentWeapon].name){
+
+            case "DIAMOND":
+
+                break;
+
+            case "RUBY":
+                break;
+
+            case "SUNSTONE":
+                break;
+
+            case "TOPAZ":
+                break;
+
+            case "EMERALD":
+                break;
+
+            case "AMETHYST":
+                if(!playState.amethystShot.isPlaying){
+
+                    playState.amethystShot.play();
+                }
+                break;
+
+            case "OBSIDIAN":
+                break;
+
+            case "SAPPHIRE":
+                break;
+
+        }
+    } else {
+        playState.amethystShot.pause();
+    }
+
+    playState.updateBar(this.healthBar, this);
+    playState.updateBar(this.shield, this);
+
+    // Update player name label
+    playState.updateName(this.playerName, this);
+
+    // --- PLAYER MOVEMENT
+    if (!game.device.desktop){
+
+    } else {
+
+        this.rotation = playState.game.physics.arcade.angleToPointer(this);
+
+        if (playState.game.physics.arcade.distanceToPointer(this) > 100) {
+
+            playState.game.physics.arcade.moveToPointer(this, playState.SHIP_SPEED);
+            playState.engineIdle.pause();
+
+        } else {
+
+            this.body.drag.x = 1000;
+            this.body.drag.y = 1000;
+
+            if(!playState.engineIdle.isPlaying){
+                playState.engineIdle.play();
+            }
+        }
+    }
+
+    if (this.frozen) {
+        if (playState.sapphireTier == 1) {
+            this.speed = this.speed * 0.25;
+            this.frozen = false;
+        } else if (playState.sapphireTier > 1) {
+            this.speed = this.speed * 0.50;
+            this.frozen = false;
+        }
+    }
+
+    if (this.stopped) {
+        this.speed = 0;
+        this.stopped = false;
+    }
+
+};
+
+playState.Player.prototype.shoot = function() {
+
+    /** PLAYER SHOOT **/
 
 };
 
@@ -2226,7 +2403,7 @@ playState.Weapon.Obsidian = function(game) {
     Phaser.Group.call(this, game, game.world, 'OBSIDIAN', false, true, Phaser.Physics.ARCADE);
 
     this.shootNow = 0;
-    this.bulletSpeed = 600;
+    this.bulletSpeed = 1000;
     this.fireRate = 500;
 
     for (i = 0; i < 60; i++) {
