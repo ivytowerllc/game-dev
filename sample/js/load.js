@@ -87,8 +87,6 @@ var loadState = {
         game.load.image('bomb','assets/anomaly.png');
         game.load.image('warp','assets/anomaly.png');
         game.load.image('comet','assets/comet.png');
-        game.load.image('particle1','assets/p1.png');
-        game.load.image('particle2','assets/p2.png');
         game.load.image('blueButton', 'assets/blueButton.png');
         game.load.image('greenButton', 'assets/greenButton.png');
         game.load.image('redButton', 'assets/redButton.png');
@@ -102,7 +100,6 @@ var loadState = {
         game.load.image('joyStick', 'assets/joystick.png');
         game.load.image('drone', 'assets/drone.png');
         game.load.image('continue', 'assets/continue.png');
-
 
         // Background music
         game.load.audio('earthMoon', 'assets/earthMoon.wav');
@@ -125,6 +122,8 @@ var loadState = {
         game.load.audio('topazShot', 'assets/topaz.wav');
         game.load.audio('bloost', 'assets/bloost.wav');
         game.load.audio('metal', 'assets/metal.wav');
+        game.load.audio('powerup', 'assets/powerup.wav');
+        game.load.audio('menu', 'assets/menuMusic.wav');
     },
 
     create: function(){
