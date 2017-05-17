@@ -103,6 +103,8 @@ var loadState = {
         game.load.image('drone', 'assets/drone.png');
         game.load.image('continue', 'assets/continue.png');
 
+        game.load.atlas('generic', 'assets/generic-joystick.png', 'assets/generic-joystick.json');
+
         // Background music
         game.load.audio('earthMoon', 'assets/earthMoon.wav');
         game.load.audio('asteroidMenu', 'assets/asteroidMenu.wav');
