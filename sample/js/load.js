@@ -128,6 +128,18 @@ var loadState = {
         game.load.audio('metal', 'assets/metal.wav');
         game.load.audio('powerup', 'assets/powerup.wav');
         game.load.audio('menu', 'assets/menuMusic.wav');
+        game.load.audio('ice', 'assets/ice.wav');
+        game.load.audio('cannon', 'assets/cannon.wav');
+        game.load.audio('damage', 'assets/damage.wav');
+        game.load.audio('movement', 'assets/movement.wav');
+        game.load.audio('leech', 'assets/leech.wav');
+        game.load.audio('outTap', 'assets/outTap.wav');
+        game.load.audio('inTap', 'assets/inTap.wav');
+        game.load.audio('rockets', 'assets/rockets.wav');
+        game.load.audio('sunStone', 'assets/sunStone.wav');
+        game.load.audio('warp', 'assets/warp.wav');
+        game.load.audio('battle', 'assets/battleMusic.wav');
+
     },
 
     create: function(){
