@@ -1,6 +1,4 @@
 /** Copyright Ivy Tower, LLC **/
-/** MOVE VARIABLES TO LOCAL SCOPE; CONDENSE REUSED PATHS **/
-
 // --- PlayState
 
 var playState = {
@@ -98,7 +96,7 @@ var playState = {
     COMET_SPEED: 250,
 
     transmuteFlag: false,
-    anomalyKey: ['infinity', 'magnet', 'transmute', 'drone', 'invisible', 'warp'],
+    anomalyKey: ['infinity', 'magnet', 'transmute', 'droneAnom', 'invisible', 'warp'],
     nickname: "",
 
     create: function() {
@@ -119,23 +117,28 @@ var playState = {
         this.game.add.tileSprite(0, 0, this.game.world.width, this.game.world.height, 'bg');
 
         // Start music
-        var jupiter = this.game.add.audio('jupiter');
-        var eris = this.game.add.audio('eris');
-        var moon = this.game.add.audio('earthMoon');
-        var mars = this.game.add.audio('mars');
-        var pluto = this.game.add.audio('pluto');
-        var musics = [jupiter, eris, moon, mars, pluto];
-        this.music = musics[Math.floor(Math.random() * 5)];
+        this.music = game.add.audio('battle');
         this.music.loop = true;
-        //this.music.play();
+        this.music.play();
 
         // General Sound Effects
         this.metalSound = game.add.audio('metal');
-        this.metalSound.volume = 10;
+        this.metalSound.volume = 2;
         this.deathSound = game.add.audio('death');
         this.deathSound.volume = 5;
         this.crystalSound = game.add.audio('crystalSound');
-        this.crystalSound.volume = 5;
+        this.crystalSound.volume = 2;
+        this.iceSound = game.add.audio('ice');
+        this.cannonSound = game.add.audio('cannon');
+        this.damageSound = game.add.audio('damage');
+        this.movementSound = game.add.audio('movement');
+        this.leechSound = game.add.audio('leech');
+        this.outTapSound = game.add.audio('outTap');
+        this.inTapSound = game.add.audio('inTap');
+        this.rocketSound = game.add.audio('rockets');
+        this.burnSound = game.add.audio('burn');
+        this.warpSound = game.add.audio('warp');
+
 
         // Ship Sound Effects
         this.diamondShot = game.add.audio('diamondShot');
@@ -150,7 +153,9 @@ var playState = {
 
         this.bloost.allowMultiple = false;
         this.amethystShot.allowMultiple = false;
+        this.movementSound.allowMultiple = false;
         this.engineIdle.allowMultiple = false;
+        this.engineIdle.volume = 0.5;
 
         this.powerup = this.game.add.audio('powerup');
         this.powerup.volume = 10;
@@ -192,9 +197,9 @@ var playState = {
 
         // --- PLAYER BULLETS
 
-        this.weapons.push(new this.Weapon.Topaz(this.game));
-        this.topazTier = 3;
-        this.tier = this.topazTier;
+        this.weapons.push(new this.Weapon.Ruby(this.game));
+        this.rubyTier = 3;
+        this.tier = this.rubyTier;
 
         this.droneWeapons.push(new this.Weapon.DroneWeapon(this.game));
 
@@ -371,28 +376,7 @@ var playState = {
 
         } else {
 
-            boost = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-            changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
-            changeKey.onDown.add(this.changeWeapon, this);
 
-            if (boost.isDown) {
-
-                this.playerBoost();
-
-            } else {
-
-                this.bloost.pause();
-
-                if (this.player.dustCollected > 205){
-
-                    this.SHIP_SPEED = 600;
-
-                } else {
-
-                    this.SHIP_SPEED = 600 - (this.player.dustCollected / 2);
-
-                }
-            }
 
         }
 
@@ -420,7 +404,7 @@ var playState = {
         this.asteroids.forEachAlive(this.bulletCollision, this, this.explosions);
         this.comets.forEachAlive(this.bulletCollision, this, this.explosions);
 
-        // this.physics.arcade.overlap(this.enemyWeapon, this.player, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
+        this.physics.arcade.overlap(this.enemyWeapon, this.player, this.callDamage, null, this); // Comment this out to ignore enemy damage; useful for development
 
         if (this.drone.alive) {
             this.physics.arcade.overlap(this.enemyWeapon, this.drone, this.callDamage, null, this);
@@ -500,33 +484,7 @@ var playState = {
             console.log("DESKTOP BOOST!");
         }
 
-        if(this.player.dustCollected > 0) {
 
-            this.SHIP_SPEED = 1000;
-
-            if (!this.bloost.isPlaying) {
-                this.bloost.play();
-            }
-
-            this.dustBurnt += 1;
-            this.player.dustCollected -= 1;
-
-            if (this.dustBurnt >= 6) {
-
-                this.metal = new this.Metal(this.game, this.player.previousPosition.x, this.player.previousPosition.y, 'C');
-                this.metals.add(this.metal);
-                this.dustBurnt = 0;
-
-            }
-
-            this.player.shield.scale.x -= .0025;
-
-            if (this.player.dustCollected == 0) {
-
-                this.player.shield.scale.x = 0;
-
-            }
-        }
     },
 
     playerDie: function() {
@@ -541,6 +499,7 @@ var playState = {
     continue: function() {
 
         console.log('CONTINUE');
+        this.inTapSound.play();
         this.deadMenu.kill();
         this.player.revive();
         this.player.health = 200;
@@ -586,6 +545,7 @@ var playState = {
 
         game.state.start('menu');
         this.soundsOff();
+        this.outTapSound.play();
 
     },
 
@@ -662,17 +622,21 @@ var playState = {
         var bullet = weapon,
             damage;
 
+
         switch (weapon.key) {
             case 'diamondb':
                 damage = this.SHIP_BASIC_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
             case 'rubyb':
                 damage = this.SHIP_ROCKT_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
             case 'sunstoneb':
                 damage = this.SHIP_CRESC_DAM;
+                this.damageSound.play();
                 if (sprite.burn == false) {
                     if (this.sunstoneTier < 3) {
                         this.game.time.events.repeat(1000, 2, this.callDamage, this, sprite, 'lessburn');
@@ -686,9 +650,11 @@ var playState = {
                 break;
             case 'topazb':
                 damage = this.SHIP_ELECT_DAM;
+                this.damageSound.play();
                 break;
             case 'topaze':
                 damage = this.SHIP_LIGHT_DAM;
+                this.damageSound.play();
                 bullet.kill();
             case 'emeraldb':
                 damage = this.SHIP_LEECH_DAM;
@@ -716,6 +682,7 @@ var playState = {
                 break;
             case 'sapphireb':
                 damage = this.SHIP_FREZE_DAM;
+                this.damageSound.play();
                 if (sprite.frozen == false && sprite.iceStack < 3) {
                     sprite.frozen = true;
                     sprite.iceStack++;
@@ -729,22 +696,27 @@ var playState = {
                 break;
             case 'obsidianb':
                 damage = this.SHIP_EXPLD_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
             case 'basicb':
                 damage = this.ENEM_BASIC_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
             case 'bruiserb':
                 damage = this.ENEM_BRUIS_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
             case 'captainb':
                 damage = this.ENEM_CAPTN_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
             case 'govtb':
                 damage = this.ENEM_GOVMT_DAM;
+                this.damageSound.play();
                 bullet.kill();
                 break;
         }
@@ -1144,7 +1116,7 @@ var playState = {
                 }
                 break;
             case 'warp':
-                this.powerup.play();
+                this.warpSound.play();
                 this.player.x = this.game.world.randomX;
                 this.player.y = this.game.world.randomY;
                 if (this.drone.alive) {
@@ -1561,6 +1533,7 @@ playState.Player.prototype.update = function() {
         if (playState.stick.isDown) {
             playState.physics.arcade.velocityFromRotation(playState.stick.rotation, playState.stick.force * playState.SHIP_SPEED, this.body.velocity);
             this.rotation = playState.stick.rotation;
+            playState.movementSound.play();
             playState.engineIdle.pause();
         } else {
             this.body.drag.x = 1000;
@@ -1573,6 +1546,50 @@ playState.Player.prototype.update = function() {
 
     } else {
 
+        var boost = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR),
+        changeKey = game.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+        changeKey.onDown.add(playState.changeWeapon, this);
+
+        if (boost.isDown && this.dustCollected > 0) {
+
+            playState.game.physics.arcade.moveToPointer(this, 1000);
+
+            if (!playState.bloost.isPlaying) {
+                playState.bloost.play();
+            }
+
+            playState.dustBurnt += 1;
+            this.dustCollected -= 1;
+
+            if (playState.dustBurnt >= 6) {
+
+                playState.metal = new playState.Metal(playState.game, this.previousPosition.x, this.previousPosition.y, 'C');
+                playState.metals.add(playState.metal);
+                playState.dustBurnt = 0;
+            }
+
+            this.shield.scale.x -= .0025;
+
+            if (this.dustCollected == 0) {
+
+                this.shield.scale.x = 0;
+            }
+
+        } else {
+
+            playState.bloost.pause();
+
+            if (this.dustCollected > 205){
+
+                this.SHIP_SPEED = 600;
+
+            } else {
+
+                this.SHIP_SPEED = 600 - (this.dustCollected / 2);
+
+            }
+        }
+
         if (playState.game.input.activePointer.isDown && this.alive) {
 
             if (playState.game.physics.arcade.distanceToPointer(this) > 100) {
@@ -1581,38 +1598,34 @@ playState.Player.prototype.update = function() {
             playState.weapons[playState.currentWeapon].shoot(this);
 
             switch (playState.weapons[playState.currentWeapon].name) {
-                case 'DIAMOND':
-                    break;
-                case 'RUBY':
-                    break;
-                case 'SUNSTONE':
-                    break;
-                case 'TOPAZ':
-                    break;
                 case 'EMERALD':
+                    if(!playState.leechSound.isPlaying){
+                        playState.leechSound.play();
+                    }
                     break;
                 case 'AMETHYST':
                     if (!playState.amethystShot.isPlaying) {
                         playState.amethystShot.play();
                     }
-                    break;
-                case 'OBSIDIAN':
-                    break;
-                case 'SAPPHIRE':
-                    break;
             }
         } else {
             playState.amethystShot.pause();
+            playState.leechSound.pause();
         }
 
         this.rotation = playState.game.physics.arcade.angleToPointer(this);
 
         if (playState.game.physics.arcade.distanceToPointer(this) > 100) {
             playState.game.physics.arcade.moveToPointer(this, 700);
+            if(!playState.movementSound.isPlaying){
+                //playState.movementSound.play();
+            }
             playState.engineIdle.pause();
         } else {
             this.body.drag.x = 1000;
             this.body.drag.y = 1000;
+            playState.movementSound.pause();
+
 
             if (!playState.engineIdle.isPlaying) {
                 playState.engineIdle.play();
@@ -1991,18 +2004,17 @@ playState.Weapon.Diamond.prototype.shoot = function(ship) {
         return;
     }
 
+    playState.diamondShot.play();
     if (playState.diamondTier == 1) {
         this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
-        playState.diamondShot.play();
+
     } else if (playState.diamondTier == 2) {
         this.getFirstExists(false).shoot(ship.x, ship.y, 3, this.bulletSpeed);
         this.getFirstExists(false).shoot(ship.x, ship.y, -3, this.bulletSpeed);
-        playState.diamondShot.play();
     } else if (playState.diamondTier == 3) {
         this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
         this.getFirstExists(false).shoot(ship.x, ship.y, 5, this.bulletSpeed);
         this.getFirstExists(false).shoot(ship.x, ship.y, -5, this.bulletSpeed);
-        playState.diamondShot.play();
     }
     this.shootNow = this.game.time.time + this.fireRate;
 
@@ -2036,9 +2048,11 @@ playState.Weapon.Ruby.prototype.shoot = function(ship) {
         return;
     }
 
+    playState.rocketSound.play();
     if (playState.rubyTier < 3) {
         this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
-    } else if (playState.rubyTier == 3) {
+
+    } else {
         this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
         this.getFirstExists(false).shoot(ship.x, ship.y, 5, this.bulletSpeed);
         this.getFirstExists(false).shoot(ship.x, ship.y, -5, this.bulletSpeed);
@@ -2074,8 +2088,11 @@ playState.Weapon.Sunstone.prototype.shoot = function(ship) {
     if (this.game.time.time < this.shootNow) {
         return;
     }
+    playState.burnSound.play();
 
     this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
+
+
 
     this.shootNow = this.game.time.time + this.fireRate;
 
@@ -2109,7 +2126,11 @@ playState.Weapon.Topaz.prototype.shoot = function(ship) {
         return;
     }
 
+    playState.topazShot.play();
+
     this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
+
+
 
     this.shootNow = this.game.time.time + this.fireRate;
 
@@ -2190,7 +2211,7 @@ playState.Weapon.Sapphire = function(game) {
     Phaser.Group.call(this, game, game.world, 'SAPPHIRE', false, true, Phaser.Physics.ARCADE);
 
     this.shootNow = 0;
-    this.bulletSpeed = 800;
+    this.bulletSpeed = 1500;
     this.fireRate = 200;
 
     for (i = 0; i < 60; i++) {
@@ -2209,8 +2230,11 @@ playState.Weapon.Sapphire.prototype.shoot = function (ship) {
     if (this.game.time.time < this.shootNow) {
         return;
     }
+    playState.iceSound.play();
 
     this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
+
+
 
     this.shootNow = this.game.time.time + this.fireRate;
 
@@ -2243,6 +2267,7 @@ playState.Weapon.Obsidian.prototype.shoot = function(ship) {
     if (this.game.time.time < this.shootNow) {
         return;
     }
+    playState.cannonSound.play();
 
     if (playState.obsidianTier == 1) {
         this.getFirstExists(false).shoot(ship.x, ship.y, 0, this.bulletSpeed);
